@@ -1,4 +1,4 @@
-#include "UserPlayer.h"
+﻿#include "UserPlayer.h"
 
 Move UserPlayer::GetNextMove(Board& game_board)
 {

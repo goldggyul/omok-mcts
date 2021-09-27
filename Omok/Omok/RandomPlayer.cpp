@@ -1,12 +1,12 @@
-#include "RandomPlayer.h"
+ï»¿#include "RandomPlayer.h"
 
 Move RandomPlayer::GetNextMove(Board& game_board)
 {
-	// ½Ãµå°ªÀ» ¾ò±â À§ÇÑ random_device »ı¼º
+	// ì‹œë“œê°’ì„ ì–»ê¸° ìœ„í•œ random_device ìƒì„±
 	std::random_device rd;
-	// random_device ¸¦ ÅëÇØ ³­¼ö »ı¼º ¿£ÁøÀ» ÃÊ±âÈ­
+	// random_device ë¥¼ í†µí•´ ë‚œìˆ˜ ìƒì„± ì—”ì§„ì„ ì´ˆê¸°í™”
 	std::mt19937 gen(rd());
-	// 0 ºÎÅÍ size ±îÁö ±ÕµîÇÏ°Ô ³ªÅ¸³ª´Â ³­¼ö¿­À» »ı¼ºÇÏ±â À§ÇØ ±Õµî ºĞÆ÷ Á¤ÀÇ
+	// 0 ë¶€í„° size ê¹Œì§€ ê· ë“±í•˜ê²Œ ë‚˜íƒ€ë‚˜ëŠ” ë‚œìˆ˜ì—´ì„ ìƒì„±í•˜ê¸° ìœ„í•´ ê· ë“± ë¶„í¬ ì •ì˜
 	std::uniform_int_distribution<int> dis(0, game_board.GetSize() - 1);
 	uint x = dis(gen);
 	uint y = dis(gen);

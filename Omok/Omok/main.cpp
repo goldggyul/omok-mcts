@@ -1,13 +1,12 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include "Omok.h"
 
 int main() {
-
-	Omok omok;
 	try {
+		Omok omok;
 		omok.Play();
 
-		// ÈÄ¿¡ Ãâ·Â ÇÔ¼ö ºĞ¸® ??
+		// í›„ì— ì¶œë ¥ í•¨ìˆ˜ ë¶„ë¦¬ ??
 		// omok.PrintResult(); 
 		/*
 		if (omok.IsUserWin()) {

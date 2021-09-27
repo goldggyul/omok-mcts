@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 #include "Exception.h"
 
@@ -14,14 +14,19 @@ struct Move {
 	Turn turn;
 	uint x;
 	uint y;
-
-	uint GetTurn() {
-		return static_cast<uint>(turn);
-	}
 };
 
 class Board {
 public:
+	~Board() {
+		if (board_ != nullptr) {
+			for (uint i = 0; i < size_; i++) {
+				delete[] board_[i];
+			}
+			delete[] board_;
+		}
+	}
+
 	void SetSize(uint size);
 	bool IsGameOver(Turn turn);
 	void Print();
@@ -48,12 +53,13 @@ public:
 	}
 
 private:
+	const std::string turn_characters_[3] = { " ","â—", "â—‹" };
+
 	bool IsRightCompleted(Move cur_move);
 	bool IsDownCompleted(Move cur_move);
 	bool IsDiagonalCompleted(Move cur_move);
 	bool IsCompleted(Move cur_move, const Move& dm, uint count);
 
-	std::string turn_characters_[3] = {" ","¡Ü", "¡Û"};
 	uint size_;
 	uint empty_count_;
 	Turn** board_;

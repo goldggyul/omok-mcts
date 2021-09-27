@@ -1,16 +1,16 @@
-#include "Omok.h"
+ï»¿#include "Omok.h"
 
 void Omok::Play() {
 	Initialize();
 
 	Turn turn = Turn::White;
-	// ÀÌÀü ÅÏÀÇ ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓÀ» ³¡³Â´ÂÁö È®ÀÎ
+	// ì´ì „ í„´ì˜ í”Œë ˆì´ì–´ê°€ ê²Œì„ì„ ëëƒˆëŠ”ì§€ í™•ì¸
 	while (!game_board_.IsGameOver(turn)) {
 		game_board_.Print();
-		// ´ÙÀ½ ÇÃ·¹ÀÌ¾î·Î ÅÏÀ» ³Ñ±è
+		// ë‹¤ìŒ í”Œë ˆì´ì–´ë¡œ í„´ì„ ë„˜ê¹€
 		turn = (turn == Turn::Black) ? Turn::White : Turn::Black;
 		Move next_move = players_[static_cast<uint>(turn)]->GetNextMove(game_board_);
-		PrintMove(next_move);
+		std::cout << turn_names_[static_cast<uint>(next_move.turn)] << ' ' << next_move.x << ' ' << next_move.y << std::endl;
 		game_board_.PutNextMove(next_move);
 	}
 	PrintResult();

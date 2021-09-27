@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <iomanip>
 #include "Board.h"
 
@@ -16,7 +16,7 @@ bool Board::IsGameOver(Turn turn) {
 	for (uint i = 0; i < size_; i++) {
 		for (uint j = 0; j < size_; j++) {
 			Move move{ turn, i, j };
-			// °¢ Ä­¸¶´Ù ¿À¸¥ÂÊ ¹æÇâ/¾Æ·¡ ¹æÇâ/¿À¸¥ÂÊ ¾Æ·¡ ´ë°¢¼± ¹æÇâ È®ÀÎ
+			// ê° ì¹¸ë§ˆë‹¤ ì˜¤ë¥¸ìª½ ë°©í–¥/ì•„ëž˜ ë°©í–¥/ì˜¤ë¥¸ìª½ ì•„ëž˜ ëŒ€ê°ì„  ë°©í–¥ í™•ì¸
 			if (IsRightCompleted(move) || IsDownCompleted(move) || IsDiagonalCompleted(move)) {
 				result_ = turn;
 				return true;
@@ -56,7 +56,7 @@ void Board::PutNextMove(const Move& next_move) {
 }
 
 bool Board::IsRightCompleted(Move cur_move) {
-	// dm: º¯È­·®. ¿ìÃø È®ÀÎÇÏ¹Ç·Î dx==0, dy==1
+	// dm: ë³€í™”ëŸ‰. ìš°ì¸¡ í™•ì¸í•˜ë¯€ë¡œ dx==0, dy==1
 	Move dm{ cur_move.turn,0,1 };
 	return IsCompleted(cur_move, dm, 0);
 }
@@ -71,7 +71,7 @@ bool Board::IsDiagonalCompleted(Move cur_move) {
 	return IsCompleted(cur_move, dm, 0);
 }
 
-// Recursive: dm¾¿ ÀÌµ¿ÇÏ¸é¼­ 5°³°¡ ¿Ï¼ºµÇ¾ú´ÂÁö È®ÀÎ
+// Recursive: dmì”© ì´ë™í•˜ë©´ì„œ 5ê°œê°€ ì™„ì„±ë˜ì—ˆëŠ”ì§€ í™•ì¸
 bool Board::IsCompleted(Move cur_move, const Move& dm, uint count) {
 	if (count == 5) {
 		return true;

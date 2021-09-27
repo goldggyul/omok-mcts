@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <iostream>
 #include <string>
 #include "Player.h"
@@ -9,19 +9,25 @@
 
 class Omok {
 public:
+	~Omok() {
+		if (players_[static_cast<uint>(Turn::Black)] != nullptr) {
+			delete players_[static_cast<uint>(Turn::Black)];
+		}
+		if (players_[static_cast<uint>(Turn::White)] != nullptr) {
+			delete players_[static_cast<uint>(Turn::White)];
+		}
+	}
+
 	void Play();
-	// size, turn ÀÔ·Â¹ŞÀ½
-	void Initialize(); 
+	// size, turn ì…ë ¥ë°›ìŒ
+	void Initialize();
 	void PrintResult();
 
 private:
-	void PrintMove(Move move) {
-		std::cout << turn_names_[move.GetTurn()] << ' ' << move.x << ' ' << move.y << std::endl;
-	}
-
-	// 2 playerÁö¸¸, ±¸Çö »óÀÇ ÆíÀÇ¸¦ À§ÇØ size 3
-	Player* players_[3]; 
-	Board game_board_;
 	const std::string turn_names_[3] = { "", "black", "white" };
+
+	// 2 playerì§€ë§Œ, êµ¬í˜„ ìƒì˜ í¸ì˜ë¥¼ ìœ„í•´ size 3
+	Player* players_[3];
+	Board game_board_;
 };
 
