@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <iostream> // for debugging
+#include <iomanip>
 #include "Exception.h"
 
 using uint = unsigned int;
@@ -12,7 +13,7 @@ enum class Turn {
 };
 
 struct Move {
-	Turn turn_;
+	Turn turn;
 	uint x;
 	uint y;
 };

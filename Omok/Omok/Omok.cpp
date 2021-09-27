@@ -12,7 +12,7 @@ void Omok::Play() {
 		// 다음 플레이어로 턴을 넘김
 		turn_ = (turn_ == Turn::Black) ? Turn::White : Turn::Black;
 		Move next_move = players_[static_cast<uint>(turn_)]->GetNextMove(game_board_);
-		std::cout << turn_names_[static_cast<uint>(next_move.turn_)] << ' ' << next_move.x << ' ' << next_move.y << std::endl;
+		std::cout << turn_names_[static_cast<uint>(next_move.turn)] << ' ' << next_move.x << ' ' << next_move.y << std::endl;
 		game_board_.PutNextMove(next_move);
 	}
 	PrintResult();

@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include <iomanip>
+﻿
 #include "Board.h"
 
 void Board::SetSize(uint size) {
@@ -56,22 +55,22 @@ void Board::Print() {
 
 void Board::PutNextMove(const Move& next_move) {
 	empty_count_--;
-	board_[next_move.x][next_move.y] = next_move.turn_;
+	board_[next_move.x][next_move.y] = next_move.turn;
 }
 
 bool Board::IsRightCompleted(Move cur_move) {
 	// dm: 변화량. 우측 확인하므로 dx==0, dy==1
-	Move dm{ cur_move.turn_,0,1 };
+	Move dm{ cur_move.turn,0,1 };
 	return IsCompleted(cur_move, dm, 0);
 }
 
 bool Board::IsDownCompleted(Move cur_move) {
-	Move dm{ cur_move.turn_,1,0 };
+	Move dm{ cur_move.turn,1,0 };
 	return IsCompleted(cur_move, dm, 0);
 }
 
 bool Board::IsDiagonalCompleted(Move cur_move) {
-	Move dm{ cur_move.turn_,1,1 };
+	Move dm{ cur_move.turn,1,1 };
 	return IsCompleted(cur_move, dm, 0);
 }
 
@@ -83,7 +82,7 @@ bool Board::IsCompleted(Move cur_move, const Move& dm, uint count) {
 	if (!IsValid(cur_move.x, cur_move.y)) {
 		return false;
 	}
-	if (board_[cur_move.x][cur_move.y] == cur_move.turn_) {
+	if (board_[cur_move.x][cur_move.y] == cur_move.turn) {
 		cur_move.x += dm.x;
 		cur_move.y += dm.y;
 		return IsCompleted(cur_move, dm, count + 1);

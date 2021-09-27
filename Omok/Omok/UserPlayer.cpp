@@ -9,7 +9,7 @@ Move UserPlayer::GetNextMove(const Board& game_board)
         std::cin >> x >> y;
     }
     Move move;
-    move.turn_ = turn_;
+    move.turn = turn_;
     move.x = x;
     move.y = y;
     return move;

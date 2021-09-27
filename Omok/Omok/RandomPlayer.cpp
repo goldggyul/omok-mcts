@@ -15,7 +15,7 @@ Move RandomPlayer::GetNextMove(const Board& game_board)
 		y = dis(gen);
 	}
 	Move move;
-	move.turn_ = turn_;
+	move.turn = turn_;
 	move.x = x;
 	move.y = y;
 	return move;

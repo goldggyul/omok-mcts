@@ -7,16 +7,18 @@ Move AiPlayer::GetFirstMove(const Board& game_board)
 
 Move AiPlayer::GetNextMove(const Board& game_board)
 {
-    Tree* tree = GetPartialTree(game_board, 2);
-    //tree->Print();
-
+    MonteCarloTree* tree = GetPartialTree(game_board, 2);
+    tree->Print();
     return Move();
+
+    //Move next_move = tree->GetMctsResult();
+    //delete tree;
+    //return next_move;
 }
 
-AiPlayer::Tree* AiPlayer::GetPartialTree(const Board& game_board, uint max_depth)
+MonteCarloTree* AiPlayer::GetPartialTree(const Board& game_board, uint max_depth)
 {
-    Turn prior_turn = (turn_ == Turn::Black) ? Turn::White : Turn::Black;
-    Tree* tree = new Tree(new Node(game_board, prior_turn));
+    MonteCarloTree* tree = new MonteCarloTree(game_board, turn_);
     tree->AddNodesUntilMaxDepth(max_depth);
     return tree;
 }

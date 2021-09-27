@@ -8,7 +8,7 @@ public:
 	Player(Turn turn_) : turn_(turn_) {}
 	virtual ~Player() = default;
 
-	Turn GetTurn() {
+	Turn GetRootTurn() {
 		return turn_;
 	}
 	virtual Move GetNextMove(const Board& game_board) = 0;
