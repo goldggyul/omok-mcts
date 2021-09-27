@@ -6,7 +6,8 @@ int main() {
 	Omok omok;
 	try {
 		omok.Play();
-		omok.PrintResult(); // 후에 출력 함수 분리
+		// 후에 출력 함수 분리 ??
+		omok.PrintResult(); 
 		/*
 		if (omok.IsUserWin()) {
 			std::cout << win << std::endl;
@@ -14,7 +15,8 @@ int main() {
 			std::cout << lose << std::endl;
 		}
 		*/
-	} catch (...) {
+	}
+	catch (...) {
 		// TODO
 	}
 	return 0;

@@ -1,10 +1,10 @@
 #pragma once
 #include "Player.h"
-#include <iostream>
+#include <random>
 
-class UserPlayer : public Player {
+class RandomPlayer : public Player {
 public:
-	UserPlayer(Turn turn) :Player(turn) {}
+	RandomPlayer(Turn turn) :Player(turn) {}
 	virtual Move GetNextMove(Board& game_board);
 
 private:
