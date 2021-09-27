@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="AiPlayer.h" />
     <ClInclude Include="Board.h" />
+    <ClInclude Include="Exception.h" />
     <ClInclude Include="Omok.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RandomPlayer.h" />

@@ -6,8 +6,9 @@ int main() {
 	Omok omok;
 	try {
 		omok.Play();
+
 		// 후에 출력 함수 분리 ??
-		omok.PrintResult(); 
+		// omok.PrintResult(); 
 		/*
 		if (omok.IsUserWin()) {
 			std::cout << win << std::endl;

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Exception.h"
 
 using uint = unsigned int;
 
@@ -17,7 +18,6 @@ struct Move {
 	uint GetTurn() {
 		return static_cast<uint>(turn);
 	}
-
 };
 
 class Board {
@@ -31,19 +31,31 @@ public:
 		return size_;
 	}
 
+	uint GetEmptyCount() const {
+		return empty_count_;
+	}
+
 	bool IsValid(uint x, uint y) const {
-		return 0 <= x && x < size_ && 0 <= y && y <= size_;
+		return x < size_ && y < size_;
 	}
 
 	bool IsEmpty(uint x, uint y) const {
 		return board_[x][y] == Turn::None;
 	}
 
+	Turn GetResult() const {
+		return result_;
+	}
+
 private:
-	void SetBoard();
+	bool IsRightCompleted(Move cur_move);
+	bool IsDownCompleted(Move cur_move);
+	bool IsDiagonalCompleted(Move cur_move);
+	bool IsCompleted(Move cur_move, const Move& dm, uint count);
 
 	std::string turn_characters_[3] = {" ","¡Ü", "¡Û"};
 	uint size_;
-	uint left_count_;
+	uint empty_count_;
 	Turn** board_;
+	Turn result_;
 };

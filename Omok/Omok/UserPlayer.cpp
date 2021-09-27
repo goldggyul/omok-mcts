@@ -8,7 +8,6 @@ Move UserPlayer::GetNextMove(Board& game_board)
         std::cout << "wrong input. input again"<<std::endl;
         std::cin >> x >> y;
     }
-
     Move move;
     move.turn = turn_;
     move.x = x;
