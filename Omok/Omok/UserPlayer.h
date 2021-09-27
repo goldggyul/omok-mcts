@@ -4,8 +4,8 @@
 
 class UserPlayer : public Player {
 public:
-	UserPlayer(Turn turn) :Player(turn) {}
-	virtual Move GetNextMove(Board& game_board);
+	UserPlayer(Turn turn_) :Player(turn_) {}
+	virtual Move GetNextMove(const Board& game_board);
 
 private:
 };

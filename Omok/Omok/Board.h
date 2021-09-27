@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <iostream> // for debugging
 #include "Exception.h"
 
 using uint = unsigned int;
@@ -11,13 +12,24 @@ enum class Turn {
 };
 
 struct Move {
-	Turn turn;
+	Turn turn_;
 	uint x;
 	uint y;
 };
 
 class Board {
 public:
+	Board() :size_(0), empty_count_(0), board_(nullptr), result_(Turn::None) {}
+	Board(const Board& other) :size_(other.size_), empty_count_(other.empty_count_) {
+		//for debugging
+		//std::cout << "복사 생성자" << std::endl;
+		board_ = GetBoardArray();
+		for (uint i = 0; i < size_; i++) {
+			for (uint j = 0; j < size_; j++) {
+				board_[i][j] = other.board_[i][j];
+			}
+		}
+	}
 	~Board() {
 		if (board_ != nullptr) {
 			for (uint i = 0; i < size_; i++) {
@@ -28,7 +40,8 @@ public:
 	}
 
 	void SetSize(uint size);
-	bool IsGameOver(Turn turn);
+	Turn** GetBoardArray();
+	bool IsGameOver(Turn turn_);
 	void Print();
 	void PutNextMove(const Move& next_move);
 
@@ -39,6 +52,7 @@ public:
 	uint GetEmptyCount() const {
 		return empty_count_;
 	}
+
 
 	bool IsValid(uint x, uint y) const {
 		return x < size_ && y < size_;

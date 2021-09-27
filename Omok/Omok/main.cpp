@@ -19,5 +19,6 @@ int main() {
 	catch (...) {
 		// TODO
 	}
+
 	return 0;
 }

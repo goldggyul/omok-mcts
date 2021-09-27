@@ -9,6 +9,12 @@
 
 class Omok {
 public:
+	Omok() {
+		players_[0] = nullptr;
+		players_[1] = nullptr;
+		players_[2] = nullptr;
+	}
+
 	~Omok() {
 		if (players_[static_cast<uint>(Turn::Black)] != nullptr) {
 			delete players_[static_cast<uint>(Turn::Black)];

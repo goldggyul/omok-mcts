@@ -4,8 +4,8 @@
 
 class RandomPlayer : public Player {
 public:
-	RandomPlayer(Turn turn) :Player(turn) {}
-	virtual Move GetNextMove(Board& game_board);
+	RandomPlayer(Turn turn_) :Player(turn_) {}
+	virtual Move GetNextMove(const Board& game_board);
 
 private:
 };

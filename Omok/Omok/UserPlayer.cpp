@@ -1,6 +1,6 @@
 ﻿#include "UserPlayer.h"
 
-Move UserPlayer::GetNextMove(Board& game_board)
+Move UserPlayer::GetNextMove(const Board& game_board)
 {
     uint x, y;
     std::cin >> x >> y;
@@ -9,7 +9,7 @@ Move UserPlayer::GetNextMove(Board& game_board)
         std::cin >> x >> y;
     }
     Move move;
-    move.turn = turn_;
+    move.turn_ = turn_;
     move.x = x;
     move.y = y;
     return move;

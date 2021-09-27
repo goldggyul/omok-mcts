@@ -5,10 +5,13 @@ using uint = unsigned int;
 
 class Player {
 public:
-	Player(Turn turn) : turn_(turn) {}
+	Player(Turn turn_) : turn_(turn_) {}
 	virtual ~Player() = default;
 
-	virtual Move GetNextMove(Board& game_board) = 0;
+	Turn GetTurn() {
+		return turn_;
+	}
+	virtual Move GetNextMove(const Board& game_board) = 0;
 protected:
 	Turn turn_;
 };
