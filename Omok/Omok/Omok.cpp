@@ -1,13 +1,13 @@
 ﻿#include "Omok.h"
 
 void Omok::Play() {
+	
 	Initialize();
 
 	// AiPlayer가 black인 경우 중앙/혹은 랜덤으로 first move 후에 진행
-
 	Turn turn_ = Turn::White;
 	// 이전 턴의 플레이어가 게임을 끝냈는지 확인
-	while (!game_board_.IsGameOver(turn_)) {
+	while (!game_board_.IsGameOver()) {
 		game_board_.Print();
 		// 다음 플레이어로 턴을 넘김
 		turn_ = (turn_ == Turn::Black) ? Turn::White : Turn::Black;
@@ -18,29 +18,25 @@ void Omok::Play() {
 	PrintResult();
 }
 
+void Omok::InitPlayer()
+{
+	players_[static_cast<uint>(Turn::Black)] = new UserPlayer(Turn::Black);
+	players_[static_cast<uint>(Turn::White)] = new AiPlayer(Turn::White, sqrt(2));
+}
+
 void Omok::Initialize() {
 	uint size;
 	// std::cin >> size;
-	size = 5;
+	size = 12;
 	game_board_.SetSize(size);
-
-	// std::string user_turn;
-	// std::cin >> user_turn;
-
-	// 1P: user, 2P: user
-	//players_[static_cast<uint>(Turn::Black)] = new UserPlayer(Turn::Black);
-	//players_[static_cast<uint>(Turn::White)] = new UserPlayer(Turn::White);
-
-	// 1P: random, 2P: random
-	//players_[static_cast<uint>(Turn::Black)] = new RandomPlayer(Turn::Black);
-	//players_[static_cast<uint>(Turn::White)] = new RandomPlayer(Turn::White);
-
-	// 1P: random, 2P: AI
-	players_[static_cast<uint>(Turn::Black)] = new RandomPlayer(Turn::Black);
-	players_[static_cast<uint>(Turn::White)] = new AiPlayer(Turn::White);
 }
 
-void Omok::PrintResult() {
+Turn Omok::GetResult() const
+{
+	return game_board_.GetResult();
+}
+
+void Omok::PrintResult() const {
 	game_board_.Print();
 	
 	Turn result = game_board_.GetResult();

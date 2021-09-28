@@ -1,9 +1,7 @@
-﻿
-#include "Board.h"
+﻿#include "Board.h"
 
 void Board::SetSize(uint size) {
 	size_ = size;
-	empty_count_ = size * size;
 	board_ = GetBoardArray();
 }
 
@@ -15,25 +13,39 @@ Turn** Board::GetBoardArray() {
 	return arr;
 }
 
-bool Board::IsGameOver(Turn turn_) {
+bool Board::IsGameOver() {
+	Turn turn = Turn::Black;
 	for (uint i = 0; i < size_; i++) {
 		for (uint j = 0; j < size_; j++) {
-			Move move{ turn_, i, j };
+			Move move{ turn, i, j };
 			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
 			if (IsRightCompleted(move) || IsDownCompleted(move) || IsDiagonalCompleted(move)) {
-				result_ = turn_;
+				result_ = turn;
 				return true;
 			}
 		}
 	}
-	if (GetEmptyCount() == 0) {
+
+	turn = Turn::White;
+	for (uint i = 0; i < size_; i++) {
+		for (uint j = 0; j < size_; j++) {
+			Move move{ turn, i, j };
+			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
+			if (IsRightCompleted(move) || IsDownCompleted(move) || IsDiagonalCompleted(move)) {
+				result_ = turn;
+				return true;
+			}
+		}
+	}
+
+	if (GetMoveCount() == size_*size_) {
 		result_ = Turn::None;
 		return true;
 	}
 	return false;
 }
 
-void Board::Print() {
+void Board::Print() const {
 	std::cout << std::endl;
 	std::cout.setf(std::ios::left);
 
@@ -54,7 +66,7 @@ void Board::Print() {
 }
 
 void Board::PutNextMove(const Move& next_move) {
-	empty_count_--;
+	move_count_++;
 	board_[next_move.x][next_move.y] = next_move.turn;
 }
 

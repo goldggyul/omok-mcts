@@ -2,23 +2,7 @@
 #include "Omok.h"
 
 int main() {
-	try {
-		Omok omok;
-		omok.Play();
-
-		// 후에 출력 함수 분리 ??
-		// omok.PrintResult(); 
-		/*
-		if (omok.IsUserWin()) {
-			std::cout << win << std::endl;
-		} else {
-			std::cout << lose << std::endl;
-		}
-		*/
-	}
-	catch (...) {
-		// TODO
-	}
-
+	Omok omok(new AiPlayer(Turn::Black, 1/sqrt(2)), new UserPlayer(Turn::White));
+	omok.Play();
 	return 0;
 }
