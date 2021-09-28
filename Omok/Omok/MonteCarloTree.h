@@ -3,11 +3,11 @@
 #include <queue>
 #include <random>
 #include <cmath>
-#include "Board.h"
+#include "Omok.h"
 
 class MonteCarloTree {
 public:
-	MonteCarloTree(const Board& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter){
+	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter){
 		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0}, exploration_parameter);
 	}
 	~MonteCarloTree() {
@@ -15,44 +15,42 @@ public:
 	}
 
 	void AddNodesUntilMaxDepth(uint max_depth);
-	void Print();
 	Move GetMctsBestMove();
 	void InitialRollout();
+	void Print();
 
 private:
 	class MonteCarloNode {
 	public:
-		MonteCarloNode(const Board& board, Move move, double exploration_parameter)
-			:board_(board), move_(move), reward_sum_(0), visit_cnt(0), parent_(nullptr), exploration_parameter_(exploration_parameter) {}
-		MonteCarloNode(const Board& board, Move move, double exploration_parameter, MonteCarloNode* parent)
-			:MonteCarloNode(board, move, exploration_parameter)
+		MonteCarloNode(const Omok& omok, Move move, double exploration_parameter)
+			:omok_(omok), move_(move), reward_sum_(0), visit_cnt(0), parent_(nullptr), exploration_parameter_(exploration_parameter) {}
+		MonteCarloNode(const Omok& omok, Move move, double exploration_parameter, MonteCarloNode* parent)
+			:MonteCarloNode(omok, move, exploration_parameter)
 		{
 			parent_ = parent;
-			board_.PutNextMove(move);
+			omok_.PutNextMove(move);
 		}
 
 		void AddChildren();
-		std::vector<Move> GetPossibleMoves(const Board& board, Turn turn);
-		void PrintBoard() const;
-		std::vector<MonteCarloNode*>& GetChildren();
-
-		bool IsGameOver();
-		Move GetMove() const;
-
+		std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
 		// MCTS
-		bool IsLeafNode() const;
-		bool IsFirstVisit() const;
 		void RecursiveRollout();
 		void Rollout();
 		void Backpropagation(Turn winner);
-		MonteCarloNode* GetParent();
 		MonteCarloNode* ChoseChildByUct();
+		double CalculateUct() const;
+
+		bool IsGameOver();
+		void PrintBoard() const;
+		std::vector<MonteCarloNode*>& GetChildren();
+		Move GetMove() const;
+		bool IsLeafNode() const;
+		bool IsFirstVisit() const;
+		MonteCarloNode* GetParent();
 
 	private:
 		Turn GetTurn() const;
-		double CalculateUct(uint np, uint nj, int reward_sum);
-
-		Board board_;
+		Omok omok_;
 		Move move_;
 		int reward_sum_;
 		uint visit_cnt;
@@ -63,6 +61,7 @@ private:
 
 	// Recursive: 각 노드마다 child를 더해줌
 	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode& node, uint cur_depth, uint max_depth);
+	void PrintRootAndChildrenMapAndUct();
 
 	MonteCarloNode* root_;
 	Turn ai_turn_;

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Board.h"
+#include "Omok.h"
 
 using uint = unsigned int;
 
@@ -7,7 +7,7 @@ class Player {
 public:
 	Player(Turn turn_) : turn_(turn_) {}
 	virtual ~Player() = default;
-	virtual Move GetNextMove(const Board& game_board) = 0;
+	virtual Move GetNextMove(const Omok& game_board) = 0;
 
 protected:
 	Turn turn_;

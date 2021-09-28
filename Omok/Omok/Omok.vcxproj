@@ -140,19 +140,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AiPlayer.cpp" />
-    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Omok.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MonteCarloTree.cpp" />
-    <ClCompile Include="Omok.cpp" />
+    <ClCompile Include="OmokManager.cpp" />
     <ClCompile Include="RandomPlayer.cpp" />
     <ClCompile Include="UserPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AiPlayer.h" />
-    <ClInclude Include="Board.h" />
-    <ClInclude Include="Exception.h" />
-    <ClInclude Include="MonteCarloTree.h" />
     <ClInclude Include="Omok.h" />
+    <ClInclude Include="MonteCarloTree.h" />
+    <ClInclude Include="OmokManager.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RandomPlayer.h" />
     <ClInclude Include="UserPlayer.h" />

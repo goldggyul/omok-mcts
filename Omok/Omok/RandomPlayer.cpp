@@ -1,6 +1,6 @@
 ﻿#include "RandomPlayer.h"
 
-Move RandomPlayer::GetNextMove(const Board& game_board)
+Move RandomPlayer::GetNextMove(const Omok& game_board)
 {
 	// 시드값을 얻기 위한 random_device 생성
 	std::random_device rd;
@@ -14,9 +14,5 @@ Move RandomPlayer::GetNextMove(const Board& game_board)
 		x = dis(gen);
 		y = dis(gen);
 	}
-	Move move;
-	move.turn = turn_;
-	move.x = x;
-	move.y = y;
-	return move;
+	return 	Move(turn_, x, y);
 }

@@ -25,13 +25,13 @@ void MonteCarloTree::MonteCarloNode::AddChildren() {
 	else {
 		next_turn = (move_.turn == Turn::Black) ? Turn::White : Turn::Black;
 	}
-	std::vector<Move> possible_moves = GetPossibleMoves(board_, next_turn);
+	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
 	for (const Move& move : possible_moves) {
-		children_.push_back(new MonteCarloNode(board_, move, exploration_parameter_, this));
+		children_.push_back(new MonteCarloNode(omok_, move, exploration_parameter_, this));
 	}
 }
 
-std::vector<Move> MonteCarloTree::MonteCarloNode::GetPossibleMoves(const Board& board, Turn turn)
+std::vector<Move> MonteCarloTree::MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
 {
 	std::vector<Move> possible_moves;
 
@@ -81,14 +81,6 @@ void MonteCarloTree::Print() {
 	}
 }
 
-void MonteCarloTree::MonteCarloNode::PrintBoard() const {
-	board_.Print();
-}
-
-std::vector<MonteCarloTree::MonteCarloNode*>& MonteCarloTree::MonteCarloNode::GetChildren() {
-	return children_;
-}
-
 Move MonteCarloTree::GetMctsBestMove() {
 	// Initialize
 	MonteCarloNode* cur_node = root_;
@@ -121,6 +113,9 @@ Move MonteCarloTree::GetMctsBestMove() {
 			cur_node = cur_node->ChoseChildByUct();
 		}
 	}
+	// for debugging
+	//PrintRootAndChildrenMapAndUct();
+
 	return root_->ChoseChildByUct()->GetMove();
 }
 
@@ -140,28 +135,8 @@ void MonteCarloTree::MonteCarloNode::RecursiveRollout() {
 	}
 }
 
-bool MonteCarloTree::MonteCarloNode::IsGameOver() {
-	return board_.IsGameOver();
-}
-
-Move MonteCarloTree::MonteCarloNode::GetMove() const {
-	return move_;
-}
-
-Turn MonteCarloTree::MonteCarloNode::GetTurn() const {
-	return move_.turn;
-}
-
-bool MonteCarloTree::MonteCarloNode::IsLeafNode() const {
-	return children_.empty();
-}
-
-bool MonteCarloTree::MonteCarloNode::IsFirstVisit() const {
-	return visit_cnt == 0;
-}
-
 void MonteCarloTree::MonteCarloNode::Rollout() {
-	Board board = board_;
+	Omok board = omok_;
 	Turn turn = move_.turn;
 
 	while (!board.IsGameOver()) {
@@ -201,20 +176,15 @@ void MonteCarloTree::MonteCarloNode::Backpropagation(Turn winner) {
 	}
 }
 
-MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::GetParent()
-{
-	return parent_;;
-}
-
 MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseChildByUct() {
-	MonteCarloNode* best_children = nullptr;
 	double best_uct = 0.0;
+	MonteCarloNode* best_children = nullptr;
 
 	for (MonteCarloNode* child : children_) {
 		if (child->visit_cnt == 0) {
 			return child;
 		}
-		double uct = CalculateUct(visit_cnt, child->visit_cnt, child->reward_sum_);
+		double uct = child->CalculateUct();
 		if (uct > best_uct) {
 			best_uct = uct;
 			best_children = child;
@@ -223,8 +193,51 @@ MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseChildByUct(
 	return best_children;
 }
 
-double MonteCarloTree::MonteCarloNode::CalculateUct(uint np, uint nj, int reward_sum) {
-	double reward_mean = reward_sum / nj;
-	double exploration_term = sqrt(log(np) / nj);
+double MonteCarloTree::MonteCarloNode::CalculateUct() const {
+	double reward_mean = reward_sum_ / visit_cnt;
+	double exploration_term = sqrt(log(parent_->visit_cnt) / visit_cnt);
 	return reward_mean + exploration_parameter_ * exploration_term;
+}
+
+void MonteCarloTree::PrintRootAndChildrenMapAndUct() {
+	std::cout << "Root" << std::endl;
+	root_->PrintBoard();
+	uint cnt = 0;
+	for (const auto* child : root_->GetChildren()) {
+		std::cout << cnt++ << "¹øÂ° child: " << child->CalculateUct() << std::endl;
+		child->PrintBoard();
+	}
+}
+
+void MonteCarloTree::MonteCarloNode::PrintBoard() const {
+	omok_.Print();
+}
+
+std::vector<MonteCarloTree::MonteCarloNode*>& MonteCarloTree::MonteCarloNode::GetChildren() {
+	return children_;
+}
+
+bool MonteCarloTree::MonteCarloNode::IsGameOver() {
+	return omok_.IsGameOver();
+}
+
+Move MonteCarloTree::MonteCarloNode::GetMove() const {
+	return move_;
+}
+
+bool MonteCarloTree::MonteCarloNode::IsLeafNode() const {
+	return children_.empty();
+}
+
+bool MonteCarloTree::MonteCarloNode::IsFirstVisit() const {
+	return visit_cnt == 0;
+}
+
+MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::GetParent()
+{
+	return parent_;;
+}
+
+Turn MonteCarloTree::MonteCarloNode::GetTurn() const {
+	return move_.turn;
 }

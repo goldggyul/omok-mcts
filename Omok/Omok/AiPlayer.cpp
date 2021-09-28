@@ -1,12 +1,13 @@
 ﻿#include "AiPlayer.h"
 
-Move AiPlayer::GetFirstMove(const Board& game_board)
+Move AiPlayer::GetFirstMove(const Omok& game_board)
 {
     return Move(turn_, game_board.GetSize()/2, game_board.GetSize() / 2);
 }
 
-Move AiPlayer::GetNextMove(const Board& game_board)
+Move AiPlayer::GetNextMove(const Omok& game_board)
 {
+    // AiPlayer가 black인 경우 중앙/혹은 랜덤으로 first move 후에 진행
     if (game_board.GetMoveCount() == 0) {
         return GetFirstMove(game_board);
     }
@@ -17,7 +18,7 @@ Move AiPlayer::GetNextMove(const Board& game_board)
     return next_move;
 }
 
-MonteCarloTree* AiPlayer::GetPartialTree(const Board& game_board, uint max_depth, double exploration_parameter)
+MonteCarloTree* AiPlayer::GetPartialTree(const Omok& game_board, uint max_depth, double exploration_parameter)
 {
     MonteCarloTree* tree = new MonteCarloTree(game_board, turn_, exploration_parameter);
     tree->AddNodesUntilMaxDepth(max_depth);

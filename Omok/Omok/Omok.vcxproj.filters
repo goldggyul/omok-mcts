@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Omok.cpp">
+    <ClCompile Include="OmokManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="AiPlayer.cpp">
@@ -27,7 +27,7 @@
     <ClCompile Include="UserPlayer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Board.cpp">
+    <ClCompile Include="Omok.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="RandomPlayer.cpp">
@@ -38,7 +38,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Omok.h">
+    <ClInclude Include="OmokManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
@@ -50,13 +50,10 @@
     <ClInclude Include="UserPlayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Board.h">
+    <ClInclude Include="Omok.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RandomPlayer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Exception.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MonteCarloTree.h">

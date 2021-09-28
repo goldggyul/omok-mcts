@@ -1,6 +1,6 @@
 ﻿#include "UserPlayer.h"
 
-Move UserPlayer::GetNextMove(const Board& game_board)
+Move UserPlayer::GetNextMove(const Omok& game_board)
 {
     uint x, y;
     std::cin >> x >> y;
@@ -8,9 +8,5 @@ Move UserPlayer::GetNextMove(const Board& game_board)
         std::cout << "wrong input. input again"<<std::endl;
         std::cin >> x >> y;
     }
-    Move move;
-    move.turn = turn_;
-    move.x = x;
-    move.y = y;
-    return move;
+    return 	Move(turn_, x, y);
 }

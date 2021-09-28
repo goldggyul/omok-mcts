@@ -1,48 +1,96 @@
 ﻿#include "Omok.h"
 
-void Omok::Play() {
-	
-	Initialize();
+void Omok::SetSize(uint size) {
+	size_ = size;
+	board_ = GetBoardArray();
+}
 
-	// AiPlayer가 black인 경우 중앙/혹은 랜덤으로 first move 후에 진행
-	Turn turn_ = Turn::White;
-	// 이전 턴의 플레이어가 게임을 끝냈는지 확인
-	while (!game_board_.IsGameOver()) {
-		game_board_.Print();
-		// 다음 플레이어로 턴을 넘김
-		turn_ = (turn_ == Turn::Black) ? Turn::White : Turn::Black;
-		Move next_move = players_[static_cast<uint>(turn_)]->GetNextMove(game_board_);
-		std::cout << turn_names_[static_cast<uint>(next_move.turn)] << ' ' << next_move.x << ' ' << next_move.y << std::endl;
-		game_board_.PutNextMove(next_move);
+Turn** Omok::GetBoardArray() {
+	Turn** arr = new Turn * [size_];
+	for (uint i = 0; i < size_; i++) {
+		arr[i] = new Turn[size_]();
 	}
-	PrintResult();
+	return arr;
 }
 
-void Omok::InitPlayer()
-{
-	players_[static_cast<uint>(Turn::Black)] = new UserPlayer(Turn::Black);
-	players_[static_cast<uint>(Turn::White)] = new AiPlayer(Turn::White, sqrt(2));
+bool Omok::IsGameOver() {
+	return IsGameOver(Turn::Black, 5)||IsGameOver(Turn::White,5);
 }
 
-void Omok::Initialize() {
-	uint size;
-	// std::cin >> size;
-	size = 12;
-	game_board_.SetSize(size);
-}
-
-Turn Omok::GetResult() const
-{
-	return game_board_.GetResult();
-}
-
-void Omok::PrintResult() const {
-	game_board_.Print();
-	
-	Turn result = game_board_.GetResult();
-	if (result == Turn::None) {
-		std::cout << "Draw - Game board is full" << std::endl;
-	} else {
-		std::cout << turn_names_[static_cast<uint>(result)] << " " << "win!" << std::endl;
+bool Omok::IsGameOver(Turn turn, uint max_cnt) {
+	for (uint i = 0; i < size_; i++) {
+		for (uint j = 0; j < size_; j++) {
+			Move move( turn, i, j );
+			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
+			if (IsRightCompleted(move, max_cnt) || IsDownCompleted(move, max_cnt) || IsDiagonalCompleted(move, max_cnt)) {
+				result_ = turn;
+				return true;
+			}
+		}
 	}
+
+	if (GetMoveCount() == size_ * size_) {
+		result_ = Turn::None;
+		return true;
+	}
+	return false;
+}
+
+void Omok::PutNextMove(const Move& next_move) {
+	move_count_++;
+	board_[next_move.x][next_move.y] = next_move.turn;
+}
+
+bool Omok::IsRightCompleted(Move cur_move, uint max_cnt) {
+	// dm: 변화량. 우측 확인하므로 dx==0, dy==1
+	Move dm(cur_move.turn,0,1);
+	return IsCompleted(cur_move, dm, 0, max_cnt);
+}
+
+bool Omok::IsDownCompleted(Move cur_move, uint max_cnt) {
+	Move dm(cur_move.turn,1,0);
+	return IsCompleted(cur_move, dm, 0, max_cnt);
+}
+
+bool Omok::IsDiagonalCompleted(Move cur_move, uint max_cnt) {
+	Move dm(cur_move.turn,1,1 );
+	return IsCompleted(cur_move, dm, 0, max_cnt);
+}
+
+// Recursive: dm씩 이동하면서 5개가 완성되었는지 확인
+bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) {
+	if (count == 5) {
+		return true;
+	}
+	if (!IsValid(cur_move.x, cur_move.y)) {
+		return false;
+	}
+	if (board_[cur_move.x][cur_move.y] == cur_move.turn) {
+		cur_move.x += dm.x;
+		cur_move.y += dm.y;
+		return IsCompleted(cur_move, dm, count + 1, max_cnt);
+	}
+	else {
+		return false;
+	}
+}
+
+void Omok::Print() const {
+	std::cout << std::endl;
+	std::cout.setf(std::ios::left);
+
+	std::cout << "   ";
+	for (uint i = 0; i < size_; i++) {
+		std::cout << std::setw(3) << i;
+	}
+	std::cout << std::endl;
+
+	for (uint i = 0; i < size_; i++) {
+		std::cout << std::setw(3) << i;
+		for (uint j = 0; j < size_; j++) {
+			std::cout << std::setw(3) << GetTurnCharacter(board_[i][j]);
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
 }

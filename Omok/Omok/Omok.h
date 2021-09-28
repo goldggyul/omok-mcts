@@ -1,50 +1,101 @@
 ﻿#pragma once
-#include <iostream>
 #include <string>
-#include "Player.h"
-#include "UserPlayer.h"
-#include "AiPlayer.h"
-#include "RandomPlayer.h"
-#include "Board.h"
+#include <iostream>
+#include <iomanip>
+
+using uint = unsigned int;
+
+enum class Turn {
+	None,
+	Black,
+	White
+};
+
+struct Move {
+	Move(Turn turn, uint x, uint y) :turn(turn), x(x), y(y) {}
+	Turn turn;
+	uint x;
+	uint y;
+};
 
 class Omok {
 public:
-	Omok() {
-		players_[0] = nullptr;
-		players_[1] = nullptr;
-		players_[2] = nullptr;
-
-		InitPlayer();
+	Omok() :size_(0), move_count_(0), board_(nullptr), result_(Turn::None) {}
+	Omok(const Omok& other) :size_(other.size_), move_count_(other.move_count_) {
+		board_ = GetBoardArray();
+		for (uint i = 0; i < size_; i++) {
+			for (uint j = 0; j < size_; j++) {
+				board_[i][j] = other.board_[i][j];
+			}
+		}
 	}
-
-	// for test
-	Omok(Player* p1, Player* p2) {
-		players_[0] = nullptr;
-		players_[1] = p1;
-		players_[2] = p2;
-	}
-
 	~Omok() {
-		if (players_[static_cast<uint>(Turn::Black)] != nullptr) {
-			delete players_[static_cast<uint>(Turn::Black)];
-		}
-		if (players_[static_cast<uint>(Turn::White)] != nullptr) {
-			delete players_[static_cast<uint>(Turn::White)];
+		if (board_ != nullptr) {
+			for (uint i = 0; i < size_; i++) {
+				delete[] board_[i];
+			}
+			delete[] board_;
 		}
 	}
 
-	void Play();
-	Turn GetResult() const;
-	void PrintResult() const;
+	void SetSize(uint size);
+	Turn** GetBoardArray();
+	bool IsGameOver();
+	bool IsGameOver(Turn turn, uint max_cnt);
+	void PutNextMove(const Move& next_move);
+	void Print() const;
+
+	uint GetSize() const {
+		return size_;
+	}
+
+	uint GetMoveCount() const {
+		return move_count_;
+	}
+
+
+	bool IsValid(uint x, uint y) const {
+		return x < size_&& y < size_;
+	}
+
+	bool IsEmpty(uint x, uint y) const {
+		return board_[x][y] == Turn::None;
+	}
+
+	Turn GetResult() const {
+		return result_;
+	}
+
+	const std::string GetTurnCharacter(Turn turn) const {
+		switch (turn) {
+		case Turn::Black:
+			return "○";
+		case Turn::White:
+			return "●";
+		default:
+			return " ";
+		}
+	}
+
+	const std::string GetTurnName(Turn turn) const{
+		switch (turn) {
+		case Turn::Black:
+			return "black";
+		case Turn::White:
+			return "white";
+		default:
+			return "none";
+		}
+	}
 
 private:
-	const std::string turn_names_[3] = { "", "black", "white" };
+	bool IsRightCompleted(Move cur_move, uint max_cnt);
+	bool IsDownCompleted(Move cur_move, uint max_cnt);
+	bool IsDiagonalCompleted(Move cur_move, uint max_cnt);
+	bool IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt);
 
-	void InitPlayer();
-	void Initialize();
-
-	// 2 player지만, 구현 상의 편의를 위해 size 3
-	Player* players_[3];
-	Board game_board_;
+	uint size_;
+	uint move_count_;
+	Turn** board_;
+	Turn result_;
 };
-
