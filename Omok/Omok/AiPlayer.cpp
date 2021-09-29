@@ -7,6 +7,12 @@ Move AiPlayer::GetFirstMove(const Omok& game_board)
 
 Move AiPlayer::GetNextMove(const Omok& game_board)
 {
+    std::cout << cnt_ << "번째" << std::endl;
+    std::ofstream fout("uct_info.txt", std::ios::app);
+    fout << cnt_ << "번째" << std::endl;
+    cnt_++;
+
+    fout.close();
     // AiPlayer가 black인 경우 중앙/혹은 랜덤으로 first move 후에 진행
     if (game_board.GetMoveCount() == 0) {
         return GetFirstMove(game_board);

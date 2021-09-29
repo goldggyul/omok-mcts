@@ -17,7 +17,6 @@ public:
 	~MonteCarloTree() {
 		// TODO: Node들 메모리 해제
 	}
-
 	void AddNodesUntilMaxDepth(uint max_depth);
 	Move GetMctsBestMove();
 	void InitialRollout();

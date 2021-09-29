@@ -6,6 +6,8 @@ Move UserPlayer::GetNextMove(const Omok& game_board)
     std::cin >> x >> y;
     while (!game_board.IsValid(x, y)||!game_board.IsEmpty(x,y)) {
         std::cout << "wrong input. input again"<<std::endl;
+        std::cin.clear();
+        std::cin.ignore(LLONG_MAX, '\n');
         std::cin >> x >> y;
     }
     return 	Move(turn_, x, y);

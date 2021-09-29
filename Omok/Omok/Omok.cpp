@@ -22,7 +22,7 @@ bool Omok::IsGameOver(Turn turn, uint max_cnt) {
 		for (uint j = 0; j < size_; j++) {
 			Move move( turn, i, j );
 			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
-			if (IsRightCompleted(move, max_cnt) || IsDownCompleted(move, max_cnt) || IsDiagonalCompleted(move, max_cnt)) {
+			if (IsRightCompleted(move, max_cnt) || IsDownCompleted(move, max_cnt) || IsDownDiagonalCompleted(move, max_cnt) || IsUpDiagonalCompleted(move, max_cnt)) {
 				result_ = turn;
 				return true;
 			}
@@ -52,8 +52,13 @@ bool Omok::IsDownCompleted(Move cur_move, uint max_cnt) {
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
-bool Omok::IsDiagonalCompleted(Move cur_move, uint max_cnt) {
+bool Omok::IsDownDiagonalCompleted(Move cur_move, uint max_cnt) {
 	Move dm(cur_move.turn,1,1 );
+	return IsCompleted(cur_move, dm, 0, max_cnt);
+}
+
+bool Omok::IsUpDiagonalCompleted(Move cur_move, uint max_cnt) {
+	Move dm(cur_move.turn, -1, 1);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 

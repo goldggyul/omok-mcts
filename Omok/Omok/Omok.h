@@ -91,7 +91,8 @@ public:
 private:
 	bool IsRightCompleted(Move cur_move, uint max_cnt);
 	bool IsDownCompleted(Move cur_move, uint max_cnt);
-	bool IsDiagonalCompleted(Move cur_move, uint max_cnt);
+	bool IsDownDiagonalCompleted(Move cur_move, uint max_cnt);
+	bool IsUpDiagonalCompleted(Move cur_move, uint max_cnt);
 	bool IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt);
 
 	uint size_;

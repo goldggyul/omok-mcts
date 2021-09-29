@@ -96,6 +96,8 @@ Move MonteCarloTree::GetMctsBestMove() {
 	// 횟수 적절히 조절 필요
 	uint rollout_cnt = 5000;
 
+	std::ofstream fout("uct_info.txt", std::ios::app);
+	fout << "rollout 횟수: " <<rollout_cnt<<" / ";
 	clock_t start, end;
 	start = clock();
 
@@ -119,8 +121,8 @@ Move MonteCarloTree::GetMctsBestMove() {
 
 	// for debugging
 	end = clock();
-	std::ofstream fout("uct_info.txt", std::ios::app);
 	fout << ((float)end - start) / CLOCKS_PER_SEC <<"초 경과"<< std::endl;
+	fout.close();
 	MonteCarloNode* best_child = root_->ChoseChildByUct();
 	PrintRootAndChildrenMapAndUct(best_child);
 
@@ -203,7 +205,7 @@ MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseChildByUct(
 }
 
 double MonteCarloTree::MonteCarloNode::CalculateUct() const {
-	double reward_mean = reward_sum_ / visit_cnt;
+	double reward_mean = (double)reward_sum_ / visit_cnt;
 	double exploration_term = sqrt(log(parent_->visit_cnt) / visit_cnt);
 	return reward_mean + exploration_parameter_ * exploration_term;
 }
