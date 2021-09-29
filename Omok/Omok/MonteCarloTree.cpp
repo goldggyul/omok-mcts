@@ -1,18 +1,18 @@
 #include "MonteCarloTree.h"
 
 void MonteCarloTree::AddNodesUntilMaxDepth(uint max_depth) {
-	RecursiveAddNodesUntilMaxDepth(*root_, 0, max_depth);
+	RecursiveAddNodesUntilMaxDepth(root_, 0, max_depth);
 }
 
 // Recursive: 각 노드마다 children를 더해줌
-void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode& node, uint cur_depth, uint max_depth) {
+void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth) {
 	if (cur_depth == max_depth) {
 		return;
 	}
 
-	node.AddChildren();
-	for (MonteCarloNode* child : node.GetChildren()) {
-		RecursiveAddNodesUntilMaxDepth(*child, cur_depth + 1, max_depth);
+	node->AddChildren();
+	for (MonteCarloNode* child : node->GetChildren()) {
+		RecursiveAddNodesUntilMaxDepth(child, cur_depth + 1, max_depth);
 	}
 }
 
@@ -90,7 +90,7 @@ Move MonteCarloTree::GetMctsBestMove() {
 	uint rollout_cnt = 0;
 	while (rollout_cnt < 100000) { // 12*12에 100000 == 약 11초
 		if (cur_node->IsGameOver()) {
-			cur_node->Rollout();
+			cur_node->Rollout(); // Backpropagation
 			rollout_cnt++;
 			cur_node = cur_node->GetParent();
 			continue;
@@ -114,9 +114,9 @@ Move MonteCarloTree::GetMctsBestMove() {
 		}
 	}
 	// for debugging
-	//PrintRootAndChildrenMapAndUct();
-
-	return root_->ChoseChildByUct()->GetMove();
+	MonteCarloNode* best_child = root_->ChoseChildByUct();
+	PrintRootAndChildrenMapAndUct(best_child);
+	return best_child->GetMove();
 }
 
 void MonteCarloTree::InitialRollout()
@@ -148,6 +148,7 @@ void MonteCarloTree::MonteCarloNode::Rollout() {
 		std::mt19937 gen(rd());
 		// 0 부터 size 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의
 		std::uniform_int_distribution<int> dis(0, possible_moves.size() - 1);
+
 		uint index = dis(gen);
 		Move next_move = possible_moves.at(index);
 		board.PutNextMove(next_move);
@@ -199,18 +200,45 @@ double MonteCarloTree::MonteCarloNode::CalculateUct() const {
 	return reward_mean + exploration_parameter_ * exploration_term;
 }
 
-void MonteCarloTree::PrintRootAndChildrenMapAndUct() {
+void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
+
+	std::ofstream fout("uct_info.txt", std::ios::app);
+	fout << "------------------------------------------------------------------------" << std::endl;
+	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |       UCT       |" << std::endl;
+	fout << "------------------------------------------------------------------------" << std::endl;
+
+	std::cout << "------------------------------------------------------------------------" << std::endl;
 	std::cout << "Root" << std::endl;
 	root_->PrintBoard();
 	uint cnt = 0;
 	for (const auto* child : root_->GetChildren()) {
-		std::cout << cnt++ << "번째 child: " << child->CalculateUct() << std::endl;
+		std::cout << cnt++ << "번째 child";
+		fout << "|" << std::setw(6) << cnt;
+		if (child == best_node) {
+			std::cout << "★" << std::endl;
+			fout << "★";
+		}
+		else {
+			std::cout << std::endl;
+			fout << "  |";
+		}
+		child->PrintInfo(fout);
 		child->PrintBoard();
 	}
+	std::cout << "------------------------------------------------------------------------" << std::endl;
+	fout << "------------------------------------------------------------------------" << std::endl;
+	fout.close();
+
 }
 
 void MonteCarloTree::MonteCarloNode::PrintBoard() const {
 	omok_.Print();
+}
+
+void MonteCarloTree::MonteCarloNode::PrintInfo(std::ofstream& fout) const
+{
+	//std::cout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
+	fout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
 }
 
 std::vector<MonteCarloTree::MonteCarloNode*>& MonteCarloTree::MonteCarloNode::GetChildren() {

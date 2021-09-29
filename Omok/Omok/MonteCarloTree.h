@@ -5,6 +5,9 @@
 #include <cmath>
 #include "Omok.h"
 
+// for debugging
+#include <fstream>
+
 class MonteCarloTree {
 public:
 	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter){
@@ -42,6 +45,7 @@ private:
 
 		bool IsGameOver();
 		void PrintBoard() const;
+		void PrintInfo(std::ofstream& fout) const;
 		std::vector<MonteCarloNode*>& GetChildren();
 		Move GetMove() const;
 		bool IsLeafNode() const;
@@ -60,8 +64,8 @@ private:
 	};
 
 	// Recursive: 각 노드마다 child를 더해줌
-	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode& node, uint cur_depth, uint max_depth);
-	void PrintRootAndChildrenMapAndUct();
+	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth);
+	void PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node);
 
 	MonteCarloNode* root_;
 	Turn ai_turn_;

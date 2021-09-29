@@ -69,9 +69,9 @@ public:
 	const std::string GetTurnCharacter(Turn turn) const {
 		switch (turn) {
 		case Turn::Black:
-			return "○";
-		case Turn::White:
 			return "●";
+		case Turn::White:
+			return "○";
 		default:
 			return " ";
 		}
