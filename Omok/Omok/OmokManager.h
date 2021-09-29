@@ -25,8 +25,14 @@ public:
 	// for test
 	OmokManager(uint size, Player* p1, Player* p2) {
 		players_[0] = nullptr;
-		players_[1] = p1;
-		players_[2] = p2;
+		if (p1->GetTurn()==Turn::Black) {
+			players_[1] = p1;
+			players_[2] = p2;
+		}
+		else {
+			players_[1] = p2;
+			players_[2] = p1;
+		}
 		omok_.SetSize(size);
 	}
 

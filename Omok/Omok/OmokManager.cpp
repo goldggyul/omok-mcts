@@ -28,5 +28,8 @@ void OmokManager::PrintResult() const {
 	}
 	else {
 		std::cout << omok_.GetTurnName(result) << " " << "win!" << std::endl;
+		std::ofstream fout("win_log.txt", std::ios::app);
+		fout << omok_.GetTurnName(result) << " " << "win!" << std::endl;
+		fout.close();
 	}
 }

@@ -94,14 +94,17 @@ Move MonteCarloTree::GetMctsBestMove() {
 	MonteCarloNode* cur_node = root_;
 	InitialRollout();
 	// 횟수 적절히 조절 필요
-	uint rollout_cnt = 5000;
+	uint rollout_cnt = 0;
 
-	std::ofstream fout("uct_info.txt", std::ios::app);
-	fout << "rollout 횟수: " <<rollout_cnt<<" / ";
-	clock_t start, end;
-	start = clock();
 
-	while (rollout_cnt) {
+	auto start = std::chrono::steady_clock::now();
+	long long elapsed=0;
+	while (true) {
+		auto end = std::chrono::steady_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		if (elapsed > 10000) { // 10000ms(10초) 제한
+			break;
+		}
 		if (cur_node->IsLeafNode()) {
 			if (!(cur_node->IsFirstVisit())){
 				// 리프 노드이며 이미 한 번 roll out
@@ -111,7 +114,7 @@ Move MonteCarloTree::GetMctsBestMove() {
 				}
 			}
 			cur_node->Rollout();
-			rollout_cnt--;
+			rollout_cnt++;
 			cur_node = root_;
 		}
 		else {
@@ -120,10 +123,10 @@ Move MonteCarloTree::GetMctsBestMove() {
 	}
 
 	// for debugging
-	end = clock();
-	fout << ((float)end - start) / CLOCKS_PER_SEC <<"초 경과"<< std::endl;
+	std::ofstream fout("uct_info.txt", std::ios::app);
+	fout << elapsed << "ms 경과 / " << "rollout 횟수: " << rollout_cnt << " / " << std::endl;
 	fout.close();
-	MonteCarloNode* best_child = root_->ChoseChildByUct();
+	MonteCarloNode* best_child = root_->ChoseBestChild();
 	PrintRootAndChildrenMapAndUct(best_child);
 
 	return best_child->GetMove();
@@ -175,12 +178,6 @@ void MonteCarloTree::MonteCarloNode::Backpropagation(Turn winner) {
 		if (cur->GetTurn() == winner) {
 			reward = 1;
 		}
-		else if (cur->GetTurn() == Turn::None) {
-			reward = 0;
-		}
-		else {
-			reward = -1;
-		}
 		cur->reward_sum_ += reward;
 		cur->visit_cnt += 1;
 		cur = cur->parent_;
@@ -208,6 +205,25 @@ double MonteCarloTree::MonteCarloNode::CalculateUct() const {
 	double reward_mean = (double)reward_sum_ / visit_cnt;
 	double exploration_term = sqrt(log(parent_->visit_cnt) / visit_cnt);
 	return reward_mean + exploration_parameter_ * exploration_term;
+}
+
+MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseBestChild() {
+	double best_eval = 0.0;
+	MonteCarloNode* best_children = nullptr;
+
+	for (MonteCarloNode* child : children_) {
+		double eval = child->CalculateEvaluation();
+		if (best_children == nullptr || eval > best_eval) {
+			best_eval = eval;
+			best_children = child;
+		}
+	}
+	return best_children;
+}
+
+double MonteCarloTree::MonteCarloNode::CalculateEvaluation() const
+{
+	return (double)reward_sum_/visit_cnt;
 }
 
 void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
@@ -250,7 +266,7 @@ void MonteCarloTree::MonteCarloNode::PrintBoard() const {
 void MonteCarloTree::MonteCarloNode::PrintInfo(std::ofstream& fout) const
 {
 	//std::cout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
-	fout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
+	fout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
 }
 
 std::vector<MonteCarloTree::MonteCarloNode*>& MonteCarloTree::MonteCarloNode::GetChildren() {

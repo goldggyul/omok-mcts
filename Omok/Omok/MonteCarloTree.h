@@ -42,6 +42,8 @@ private:
 		void Backpropagation(Turn winner);
 		MonteCarloNode* ChoseChildByUct();
 		double CalculateUct() const;
+		MonteCarloNode* ChoseBestChild();
+		double CalculateEvaluation() const;
 
 		bool IsGameOver();
 		void PrintBoard() const;
