@@ -7,6 +7,7 @@
 
 // for debugging
 #include <fstream>
+#include <chrono>
 
 class MonteCarloTree {
 public:

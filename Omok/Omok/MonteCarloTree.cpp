@@ -6,6 +6,9 @@ void MonteCarloTree::AddNodesUntilMaxDepth(uint max_depth) {
 
 // Recursive: 각 노드마다 children를 더해줌
 void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth) {
+	if (node->IsGameOver()) {
+		return;
+	}
 	if (cur_depth == max_depth) {
 		return;
 	}
@@ -17,6 +20,11 @@ void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint c
 }
 
 void MonteCarloTree::MonteCarloNode::AddChildren() {
+	// 현재 게임이 종료되었으므로 child를 더하는 것이 의미가 없음
+	if (IsGameOver()) {
+		return;
+	}
+
 	Turn next_turn;
 	// 현재 root 노드인 경우
 	if (parent_ == nullptr) {
@@ -85,37 +93,37 @@ Move MonteCarloTree::GetMctsBestMove() {
 	// Initialize
 	MonteCarloNode* cur_node = root_;
 	InitialRollout();
-
 	// 횟수 적절히 조절 필요
-	uint rollout_cnt = 0;
-	while (rollout_cnt < 100000) { // 12*12에 100000 == 약 11초
-		if (cur_node->IsGameOver()) {
-			cur_node->Rollout(); // Backpropagation
-			rollout_cnt++;
-			cur_node = cur_node->GetParent();
-			continue;
-		}
+	uint rollout_cnt = 5000;
 
+	clock_t start, end;
+	start = clock();
+
+	while (rollout_cnt) {
 		if (cur_node->IsLeafNode()) {
-			if (cur_node->IsFirstVisit()) {
-				cur_node->Rollout();
-				rollout_cnt++;
-			}
-			else {
+			if (!(cur_node->IsFirstVisit())){
 				// 리프 노드이며 이미 한 번 roll out
 				cur_node->AddChildren();
-				MonteCarloNode* first_child = cur_node->GetChildren().at(0);
-				first_child->Rollout();
-				rollout_cnt++;
+				if (!cur_node->GetChildren().empty()) {
+					cur_node = cur_node->GetChildren().at(0);
+				}
 			}
+			cur_node->Rollout();
+			rollout_cnt--;
+			cur_node = root_;
 		}
 		else {
 			cur_node = cur_node->ChoseChildByUct();
 		}
 	}
+
 	// for debugging
+	end = clock();
+	std::ofstream fout("uct_info.txt", std::ios::app);
+	fout << ((float)end - start) / CLOCKS_PER_SEC <<"초 경과"<< std::endl;
 	MonteCarloNode* best_child = root_->ChoseChildByUct();
 	PrintRootAndChildrenMapAndUct(best_child);
+
 	return best_child->GetMove();
 }
 
@@ -186,7 +194,7 @@ MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseChildByUct(
 			return child;
 		}
 		double uct = child->CalculateUct();
-		if (uct > best_uct) {
+		if (best_children == nullptr || uct > best_uct) {
 			best_uct = uct;
 			best_children = child;
 		}
@@ -207,25 +215,27 @@ void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
 	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |       UCT       |" << std::endl;
 	fout << "------------------------------------------------------------------------" << std::endl;
 
-	std::cout << "------------------------------------------------------------------------" << std::endl;
-	std::cout << "Root" << std::endl;
-	root_->PrintBoard();
-	uint cnt = 0;
+	//std::cout << "------------------------------------------------------------------------" << std::endl;
+	//std::cout << "Root" << std::endl;
+	//root_->PrintBoard();
+
+	uint cnt = 1;
 	for (const auto* child : root_->GetChildren()) {
-		std::cout << cnt++ << "번째 child";
+		// std::cout << cnt << "번째 child";
 		fout << "|" << std::setw(6) << cnt;
+		cnt++;
 		if (child == best_node) {
-			std::cout << "★" << std::endl;
+			// std::cout << "★" << std::endl;
 			fout << "★";
 		}
 		else {
-			std::cout << std::endl;
+			// std::cout << std::endl;
 			fout << "  |";
 		}
 		child->PrintInfo(fout);
-		child->PrintBoard();
+		// child->PrintBoard();
 	}
-	std::cout << "------------------------------------------------------------------------" << std::endl;
+	// std::cout << "------------------------------------------------------------------------" << std::endl;
 	fout << "------------------------------------------------------------------------" << std::endl;
 	fout.close();
 
