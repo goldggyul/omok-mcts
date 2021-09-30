@@ -19,7 +19,7 @@ Move AiPlayer::GetNextMove(const Omok& game_board)
 		return GetFirstMove(game_board.GetSize());
 	}
 
-	MonteCarloTree* first_tree = GetPartialTree(game_board, 2, exploration_parameter_);
+	MonteCarloTree* first_tree = GetPartialTree(game_board, 1, exploration_parameter_);
 	auto tree_end = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tree_end - ai_start).count();
 	fout << "> 부분 트리 생성: " << elapsed << "ms 경과" << std::endl;
@@ -53,6 +53,7 @@ Move AiPlayer::GetNextMove(const Omok& game_board)
 
 
 	// 복사 후 각 트리에 대해 시뮬레이션하여 계산
+	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(copy_end - ai_start).count();
 	for (auto* tree : copy_trees) {
 		tree_workers.push_back(std::thread(&MonteCarloTree::Mcts, tree));
 	}

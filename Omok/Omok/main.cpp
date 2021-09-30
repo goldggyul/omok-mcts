@@ -9,7 +9,7 @@ int main() {
 
 	uint black_cnt = 0, white_cnt = 0, draw_cnt = 0;
 	for (uint i = 0; i < 10; i++) {
-		OmokManager omok(size, new AiPlayer(Turn::White, 0.7), new AiPlayer(Turn::Black, 1.4));
+		OmokManager omok(size, new AiPlayer(Turn::White, sqrt(2)), new UserPlayer(Turn::Black));
 		omok.Play();
 		Turn turn = omok.GetResult();
 		switch (turn) {

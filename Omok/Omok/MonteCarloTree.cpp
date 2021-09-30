@@ -47,14 +47,14 @@ void MonteCarloTree::Mcts() {
 	auto start = std::chrono::steady_clock::now();
 	InitialRollout();
 	auto initial_rollout_end = std::chrono::steady_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(initial_rollout_end - start).count();
-	fout << "     부분 트리 rollout: " << elapsed << "ms 경과" << std::endl;
-	std::cout << "     부분 트리 rollout: " << elapsed << "ms 경과" << std::endl;
-
+	auto rollout_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(initial_rollout_end - start).count();
+	
+	fout << "     부분 트리 rollout: " << rollout_elapsed << "ms 경과" << std::endl;
+	std::cout << "     부분 트리 rollout: " << rollout_elapsed << "ms 경과" << std::endl;
 	while (true) {
 		auto end = std::chrono::steady_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - initial_rollout_end).count();
-		if (elapsed > 10000) { // 10000ms(10초) 제한
+		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - initial_rollout_end).count();
+		if (elapsed > 10000-rollout_elapsed) { // 10000ms(10초) 제한
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
