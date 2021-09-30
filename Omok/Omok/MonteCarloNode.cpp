@@ -1,7 +1,7 @@
-#include "MonteCarloNode.h"
+ï»¿#include "MonteCarloNode.h"
 
-// ·çÆ® ³ëµå¿¡¼­ È£Ãâ
-// ÀÚ½Ä ³ëµåµé ¸Ş¸ğ¸® ÇØÁ¦ÇÏ°í ¸¶Áö¸·À¸·Î ÀÚ½Å ÇØÃ¼
+// ë£¨íŠ¸ ë…¸ë“œì—ì„œ í˜¸ì¶œ
+// ìì‹ ë…¸ë“œë“¤ ë©”ëª¨ë¦¬ í•´ì œí•˜ê³  ë§ˆì§€ë§‰ìœ¼ë¡œ ìì‹  í•´ì²´
 void MonteCarloNode::FreeTreeNode()
 {
 	RecursiveFreeNode();
@@ -19,7 +19,7 @@ void MonteCarloNode::RecursiveFreeNode() {
 	}
 }
 
-// ·çÆ® ³ëµå¿¡¼­ È£Ãâ, MCTS ½ÃÀÛ Àü ºÎºĞ Æ®¸®¸¦ ¸¸µê
+// ë£¨íŠ¸ ë…¸ë“œì—ì„œ í˜¸ì¶œ, MCTS ì‹œì‘ ì „ ë¶€ë¶„ íŠ¸ë¦¬ë¥¼ ë§Œë“¦
 MonteCarloNode* MonteCarloNode::MakeCopyOfTree() {
 	MonteCarloNode* copied_root = new MonteCarloNode(omok_, move_, exploration_parameter_, nullptr);
 	CopyChildrenToOtherNode(copied_root);
@@ -37,8 +37,8 @@ void MonteCarloNode::CopyChildrenToOtherNode(MonteCarloNode* parent) {
 	}
 }
 
-// ¸ğµç Rollout ÇÔ¼ö´Â ¸¶Áö¸·¿¡ ÀÚ½ÅÀÇ score¸¸ ¾÷µ¥ÀÌÆ®ÇÏ°í Á¾·á
-// Áï BackPropagtionÀÌ ÇÊ¿äÇÏ´Ù¸é µû·Î È£Ãâ
+// ëª¨ë“  Rollout í•¨ìˆ˜ëŠ” ë§ˆì§€ë§‰ì— ìì‹ ì˜ scoreë§Œ ì—…ë°ì´íŠ¸í•˜ê³  ì¢…ë£Œ
+// ì¦‰ BackPropagtionì´ í•„ìš”í•˜ë‹¤ë©´ ë”°ë¡œ í˜¸ì¶œ
 Score MonteCarloNode::Rollout() {
 	Omok omok = omok_;
 	Turn turn = move_.turn;
@@ -56,7 +56,7 @@ Score MonteCarloNode::Rollout() {
 		omok.PutNextMove(next_move);
 	}
 	Score result(omok.GetResult());
-	// ÀÚ½ÅÀÇ °ª ¾÷µ¥ÀÌÆ®
+	// ìì‹ ì˜ ê°’ ì—…ë°ì´íŠ¸
 	UpdateScore(result);
 	return result;
 }
@@ -64,7 +64,7 @@ Score MonteCarloNode::Rollout() {
 Score MonteCarloNode::RolloutLeafChild() {
 	Score total_score;
 	
-	// futureÀÌ¿ë, º´·Ä·Î ¸ğµç LeafChild¸¦ rollout ÈÄ¿¡ °á°ú¸¦ ¸ğ¾Æ¼­ score ¾÷µ¥ÀÌÆ®
+	// futureì´ìš©, ë³‘ë ¬ë¡œ ëª¨ë“  LeafChildë¥¼ rollout í›„ì— ê²°ê³¼ë¥¼ ëª¨ì•„ì„œ score ì—…ë°ì´íŠ¸
 	std::vector<std::future<Score>> futures;
 	for (MonteCarloNode* node : children_) {
 		if (node->IsLeafNode()) {
@@ -77,13 +77,13 @@ Score MonteCarloNode::RolloutLeafChild() {
 	for (auto& e : futures) {
 		total_score += e.get();
 	}
-	// ÀÚ½ÅÀÇ °ª ¾÷µ¥ÀÌÆ®
+	// ìì‹ ì˜ ê°’ ì—…ë°ì´íŠ¸
 	UpdateScore(total_score);
 	return total_score;
 }
 
-// cnt¸¸Å­ÀÇ child¸¦ ·£´ıÀ¸·Î ¼±ÅÃÇÏ¿© rollout
-Score MonteCarloNode::RandomRollout(uint cnt) {
+// cntë§Œí¼ì˜ childë¥¼ ëœë¤ìœ¼ë¡œ ì„ íƒí•˜ì—¬ rollout
+Score MonteCarloNode::RandomRollout(uint child_cnt) {
 	if (children_.size() == 0) {
 		return Score();
 	}
@@ -97,15 +97,15 @@ Score MonteCarloNode::RandomRollout(uint cnt) {
 	std::shuffle(random_idx.begin(), random_idx.end(), gen);
 
 	std::vector<std::future<Score>> futures;
-	// ·£´ıÀ¸·Î child ¼±ÅÃ cnt°³ ¼±ÅÃ
-	for (uint i = 0; i < cnt; i++) {
+	// ëœë¤ìœ¼ë¡œ child ì„ íƒ cntê°œ ì„ íƒ
+	for (uint i = 0; i < child_cnt; i++) {
 		futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
 	}
 	Score total_score;
 	for (auto& e : futures) {
 		total_score += e.get();
 	}
-	// ÀÚ½ÅÀÇ °ª ¾÷µ¥ÀÌÆ®
+	// ìì‹ ì˜ ê°’ ì—…ë°ì´íŠ¸
 	UpdateScore(total_score);
 	return total_score;
 }
@@ -121,12 +121,12 @@ void MonteCarloNode::UpdateScore(const Score& score) {
 }
 
 void MonteCarloNode::AddChildren() {
-	// ÇöÀç °ÔÀÓÀÌ Á¾·áµÇ¾úÀ¸¹Ç·Î child¸¦ ´õÇÏ´Â °ÍÀÌ ÀÇ¹Ì°¡ ¾øÀ½
+	// í˜„ì¬ ê²Œì„ì´ ì¢…ë£Œë˜ì—ˆìœ¼ë¯€ë¡œ childë¥¼ ë”í•˜ëŠ” ê²ƒì´ ì˜ë¯¸ê°€ ì—†ìŒ
 	if (IsGameOver()) {
 		return;
 	}
 	Turn next_turn;
-	// ÇöÀç root ³ëµåÀÎ °æ¿ì
+	// í˜„ì¬ root ë…¸ë“œì¸ ê²½ìš°
 	if (parent_ == nullptr) {
 		next_turn = move_.turn;
 	} else {
@@ -140,7 +140,7 @@ void MonteCarloNode::AddChildren() {
 	}
 }
 
-// ´Ù¸¥ ¼ö°¡ ³õ¿©Á®ÀÖÁö ¾Ê´Ù¸é ¹«Á¶°Ç ¸®ÅÏ. Áï, °ÔÀÓ Á¾·á ¿©ºÎ¸¦ Ã¼Å©ÇÏÁö ¾ÊÀ½
+// ë‹¤ë¥¸ ìˆ˜ê°€ ë†“ì—¬ì ¸ìˆì§€ ì•Šë‹¤ë©´ ë¬´ì¡°ê±´ ë¦¬í„´. ì¦‰, ê²Œì„ ì¢…ë£Œ ì—¬ë¶€ë¥¼ ì²´í¬í•˜ì§€ ì•ŠìŒ
 std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn) {
 	std::vector<Move> possible_moves;
 
@@ -150,13 +150,13 @@ std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
 		visited[i] = new bool[size]();
 	}
 
-	// ¿À¸¥ÂÊ ºÎÅÍ ½Ã°è¹æÇâÀ¸·Î 
+	// ì˜¤ë¥¸ìª½ ë¶€í„° ì‹œê³„ë°©í–¥ìœ¼ë¡œ 
 	int dx[8] = { 0,1,1,1,0,-1,-1,-1 };
 	int dy[8] = { 1,1,0,-1,-1,-1,0,1 };
 	for (uint i = 0; i < size; i++) {
 		for (uint j = 0; j < size; j++) {
 			if (!board.IsEmpty(i, j)) {
-				// 8¹æÇâ »ìÆìº½
+				// 8ë°©í–¥ ì‚´í´ë´„
 				for (uint d = 0; d < 8; d++) {
 					uint nx = i + dx[d];
 					uint ny = j + dy[d];
@@ -172,7 +172,7 @@ std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
 }
 
 void MonteCarloNode::Backpropagation(const Score& score) {
-	// ·çÆ®±îÁö score ¾÷µ¥ÀÌÆ®, ¸Ç Ã³À½ È£ÃâÇÑ ³ëµå´Â Á¦¿Ü
+	// ë£¨íŠ¸ê¹Œì§€ score ì—…ë°ì´íŠ¸, ë§¨ ì²˜ìŒ í˜¸ì¶œí•œ ë…¸ë“œëŠ” ì œì™¸
 	MonteCarloNode* cur = this->parent_;
 	while (cur != nullptr) {
 		cur->UpdateScore(score);
@@ -180,7 +180,7 @@ void MonteCarloNode::Backpropagation(const Score& score) {
 	}
 }
 
-MonteCarloNode* MonteCarloNode::ChoseChildByUct() {
+MonteCarloNode* MonteCarloNode::SelectChildByUct() {
 	double best_uct = 0.0;
 	MonteCarloNode* best_children = nullptr;
 
@@ -212,12 +212,12 @@ void MonteCarloNode::MergeRootAndChild(MonteCarloNode* other) {
 	}
 }
 
-Move MonteCarloNode::ChoseBestMove() const {
-	double best_eval = 0.0;
+Move MonteCarloNode::SelectBestMove() const {
+	uint best_eval = 0;
 	MonteCarloNode* best_children = nullptr;
 
 	for (MonteCarloNode* child : children_) {
-		double eval = child->CalculateEvaluation();
+		uint eval = child->CalculateEvaluation();
 		if (best_children == nullptr || eval > best_eval) {
 			best_eval = eval;
 			best_children = child;
@@ -230,6 +230,6 @@ Move MonteCarloNode::ChoseBestMove() const {
 	return best_children->move_;
 }
 
-double MonteCarloNode::CalculateEvaluation() const {
-	return (double)reward_sum_ / visit_cnt_;
+uint MonteCarloNode::CalculateEvaluation() const {
+	return visit_cnt_;
 }

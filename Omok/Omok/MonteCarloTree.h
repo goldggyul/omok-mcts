@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "MonteCarloNode.h"
 
 class MonteCarloTree {
@@ -8,11 +8,11 @@ public:
 	{
 		root_ = new MonteCarloNode(omok, Move{ ai_turn_,0,0 }, exploration_parameter, nullptr);
 	}
-	// ½Ã¹Ä·¹ÀÌ¼Ç ½ÃÀÛ Àü, ºÎºĞ Æ®¸® º¹»çÇÏ¿© º´·Ä ½ÇÇà À§ÇÑ º¹»ç »ı¼ºÀÚ
+	// ì‹œë®¬ë ˆì´ì…˜ ì‹œì‘ ì „, ë¶€ë¶„ íŠ¸ë¦¬ ë³µì‚¬í•˜ì—¬ ë³‘ë ¬ ì‹¤í–‰ ìœ„í•œ ë³µì‚¬ ìƒì„±ì
 	MonteCarloTree(const MonteCarloTree& other)
 		:ai_turn_(other.ai_turn_), exploration_parameter_(other.exploration_parameter_)
 	{
-		// ºÎºĞ Æ®¸® º¹»ç
+		// ë¶€ë¶„ íŠ¸ë¦¬ ë³µì‚¬
 		root_ = other.root_->MakeCopyOfTree();
 	}
 	~MonteCarloTree() {
@@ -25,7 +25,7 @@ public:
 	void MergeTreeValues(MonteCarloTree* other);
 
 private:
-	// Recursive: °¢ ³ëµå¸¶´Ù child¸¦ ´õÇØÁÜ
+	// Recursive: ê° ë…¸ë“œë§ˆë‹¤ childë¥¼ ë”í•´ì¤Œ
 	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth);
 	
 	MonteCarloNode* root_;

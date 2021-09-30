@@ -1,10 +1,10 @@
 ﻿#include "UserPlayer.h"
 
-Move UserPlayer::GetNextMove(const Omok& game_board)
+Move UserPlayer::GetNextMove(const Omok& omok)
 {
     uint x, y;
     std::cin >> x >> y;
-    while (!game_board.IsValid(x, y)||!game_board.IsEmpty(x,y)) {
+    while (!omok.IsValid(x, y)||!omok.IsEmpty(x,y)) {
         std::cout << "wrong input. input again"<<std::endl;
         std::cin.clear();
         std::cin.ignore(LLONG_MAX, '\n');

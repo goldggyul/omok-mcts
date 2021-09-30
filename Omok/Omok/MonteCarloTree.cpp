@@ -1,10 +1,10 @@
-#include "MonteCarloTree.h"
+ï»¿#include "MonteCarloTree.h"
 
 void MonteCarloTree::AddNodesUntilMaxDepth(uint max_depth) {
 	RecursiveAddNodesUntilMaxDepth(root_, 0, max_depth);
 }
 
-// Recursive: °¢ ³ëµå¸¶´Ù children¸¦ ´õÇØÁÜ
+// Recursive: ê° ë…¸ë“œë§ˆë‹¤ childrenë¥¼ ë”í•´ì¤Œ
 void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth) {
 	if (node->IsGameOver()) {
 		return;
@@ -12,7 +12,6 @@ void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint c
 	if (cur_depth == max_depth) {
 		return;
 	}
-
 	node->AddChildren();
 	for (MonteCarloNode* child : node->GetChildren()) {
 		RecursiveAddNodesUntilMaxDepth(child, cur_depth + 1, max_depth);
@@ -21,7 +20,7 @@ void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint c
 
 void MonteCarloTree::Mcts() {
 	auto start = std::chrono::steady_clock::now();
-	// ÇÑ ¹ø¾¿ child ¸ðµÎ rollout
+	// í•œ ë²ˆì”© child ëª¨ë‘ rollout
 	root_->RolloutLeafChild();
 	auto init_end = std::chrono::steady_clock::now();
 	auto init_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(init_end - start).count();
@@ -30,7 +29,7 @@ void MonteCarloTree::Mcts() {
 	while (true) {
 		auto end = std::chrono::steady_clock::now();
 		auto cur_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - init_end).count();
-		if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10ÃÊ) Á¦ÇÑ
+		if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10ì´ˆ) ì œí•œ
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
@@ -44,22 +43,23 @@ void MonteCarloTree::Mcts() {
 					score = cur_node->Rollout();
 				}
 				else {
-					// 4°³ÀÇ child¸¸ ·£´ýÀ¸·Î °ñ¶ó¼­ rollout
-					score = cur_node->RandomRollout(4);
+					// ì§€ì • ê°œìˆ˜ì˜ childë§Œ ëžœë¤ìœ¼ë¡œ ê³¨ë¼ì„œ rollout
+					int child_cnt = 4;
+					score = cur_node->RandomRollout(child_cnt);
 				}
 			}
 			cur_node->Backpropagation(score);
 			cur_node = root_;
 		}
 		else {
-			cur_node = cur_node->ChoseChildByUct();
+			cur_node = cur_node->SelectChildByUct();
 		}
 	}
 }
 
 Move MonteCarloTree::GetBestMove()
 {
-	return root_->ChoseBestMove();
+	return root_->SelectBestMove();
 }
 
 void MonteCarloTree::MergeTreeValues(MonteCarloTree* other)

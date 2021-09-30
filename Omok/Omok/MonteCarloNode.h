@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include <queue>
 #include <random>
@@ -47,11 +47,11 @@ public:
 	std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
 	void Backpropagation(const Score& score);
 
-	MonteCarloNode* ChoseChildByUct();
+	MonteCarloNode* SelectChildByUct();
 	double CalculateUct() const;
 	void MergeRootAndChild(MonteCarloNode* other);
-	Move ChoseBestMove() const;
-	double CalculateEvaluation() const;
+	Move SelectBestMove() const;
+	uint CalculateEvaluation() const;
 
 private:
 	Omok omok_;

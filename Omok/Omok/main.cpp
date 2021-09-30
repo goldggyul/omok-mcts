@@ -8,7 +8,7 @@ int main() {
 	std::string user_input;
 	std::cout << "size? ";
 	std::cin >> size;
-	std::cout << "AI turn? ";
+	std::cout << "my turn? ";
 	std::cin >> user_input;
 
 	if (user_input == "black") {
