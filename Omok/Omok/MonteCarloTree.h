@@ -4,9 +4,8 @@
 #include <random>
 #include <cmath>
 #include <chrono>
-#include <thread>
-#include <mutex>
 #include <future>
+#include <algorithm>
 #include "Omok.h"
 
 // for debugging
@@ -95,7 +94,8 @@ private:
 		void AddChildren();
 		std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
 		// MCTS
-		Score RecursiveRollout();
+		Score RolloutLeafChild();
+		Score RandomRollout();
 		Score Rollout();
 		void UpdateScore(const Score& score);
 		void Backpropagation(const Score& score);

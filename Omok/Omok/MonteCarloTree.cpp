@@ -42,7 +42,6 @@ void MonteCarloTree::MonteCarloNode::AddChildren() {
 	if (IsGameOver()) {
 		return;
 	}
-
 	Turn next_turn;
 	// 현재 root 노드인 경우
 	if (parent_ == nullptr) {
@@ -126,14 +125,20 @@ Move MonteCarloTree::GetMctsBestMove() {
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
-			if (!(cur_node->IsFirstVisit())){
-				// 리프 노드이며 이미 한 번 roll out
+			Score score;
+			if (cur_node->IsFirstVisit()) {
+				score = cur_node->Rollout();
+			}
+			else {
 				cur_node->AddChildren();
-				if (!cur_node->GetChildren().empty()) {
-					cur_node = cur_node->GetChildren().at(0);
+				if (cur_node->IsLeafNode()) {
+					score = cur_node->Rollout();
+				}
+				else {
+					score = cur_node->RandomRollout();
+					rollout_cnt_ += 7;
 				}
 			}
-			Score score=cur_node->Rollout();
 			rollout_cnt_++;
 			cur_node->Backpropagation(score);
 			cur_node = root_;
@@ -148,7 +153,7 @@ Move MonteCarloTree::GetMctsBestMove() {
 	std::cout << "     rollout 횟수: " << rollout_cnt_ << std::endl;
 	fout.close();
 	MonteCarloNode* best_child = root_->ChoseBestChild();
-	std::cout <<"루트 방문 합: " << root_->GetVisitCnt() << std::endl;
+	std::cout << "루트 방문 합: " << root_->GetVisitCnt() << std::endl;
 	PrintRootAndChildrenMapAndUct(best_child);
 
 	return best_child->GetMove();
@@ -156,61 +161,51 @@ Move MonteCarloTree::GetMctsBestMove() {
 
 void MonteCarloTree::InitialRollout()
 {
-	Score score = root_->RecursiveRollout();
+	root_->RolloutLeafChild();
 }
 
-Score MonteCarloTree::MonteCarloNode::RecursiveRollout() {
+Score MonteCarloTree::MonteCarloNode::RolloutLeafChild() {
 	Score total_score;
-
-	// v2. thread and mutex
-	//std::mutex score_mtx;
-	//std::vector<std::thread> rollout_workers;
-
-	// v3. future
 	std::vector<std::future<Score>> futures;
 	for (MonteCarloNode* node : children_) {
 		if (node->IsLeafNode()) {
-			// v3. future
 			futures.push_back(std::async(&MonteCarloTree::MonteCarloNode::Rollout, node));
-			// v2. thread and mutex
-			//rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
-			//	Score score = node->Rollout();
-			//	score_mtx.lock();
-			//	total_score += score;
-			//	score_mtx.unlock();
-			//	}));
-
-			//// v1. no thread
-			//Score score = node->Rollout();
-			//total_score += score;
 		}
 		else {
-			// v3. future
-			futures.push_back(std::async(&MonteCarloTree::MonteCarloNode::RecursiveRollout, node));
-
-			// v2. thread and mutex
-			//rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
-			//	Score score = node->RecursiveRollout();
-			//	score_mtx.lock();
-			//	total_score += score;
-			//	score_mtx.unlock();
-			//	}));
-
-			// v1. no thread
-			//Score score = node->RecursiveRollout();
-			//total_score += score;
+			total_score += node->RolloutLeafChild();
 		}
 	}
-
-	// v2. thread and mutex
-	//for (auto& e : rollout_workers) {
-	//	e.join();
-	//}
-
-	// v3. future
 	for (auto& e : futures) {
 		total_score += e.get();
 	}
+	// 자신의 값 업데이트
+	UpdateScore(total_score);
+	return total_score;
+}
+
+Score MonteCarloTree::MonteCarloNode::RandomRollout() {
+	if (children_.size() == 0) {
+		return Score();
+	}
+
+	std::vector<uint> random_idx(children_.size());
+	for (uint i = 0; i < children_.size(); i++) {
+		random_idx[i]=i;
+	}
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(random_idx.begin(), random_idx.end(), gen);
+
+	std::vector<std::future<Score>> futures;
+	// 랜덤으로 child 선택: 4개 선택
+	for (uint i = 0; i < 4; i++) {
+		futures.push_back(std::async(&MonteCarloTree::MonteCarloNode::Rollout, children_.at(i)));
+	}
+	Score total_score;
+	for (auto& e : futures) {
+		total_score += e.get();
+	}
+	// 자신의 값 업데이트
 	UpdateScore(total_score);
 	return total_score;
 }
@@ -239,7 +234,7 @@ Score MonteCarloTree::MonteCarloNode::Rollout() {
 
 void MonteCarloTree::MonteCarloNode::UpdateScore(const Score& score)
 {
-	int reward= score.GetReward(move_.turn);
+	int reward = score.GetReward(move_.turn);
 	reward_sum_ += reward;
 	visit_cnt += score.GetVisitCnt();
 }
@@ -291,13 +286,13 @@ MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseBestChild()
 			best_children = child;
 		}
 	}
-	std::cout << "child visit 총 합: "<<sum << std::endl;
+	std::cout << "child visit 총 합: " << sum << std::endl;
 	return best_children;
 }
 
 double MonteCarloTree::MonteCarloNode::CalculateEvaluation() const
 {
-	return (double)reward_sum_/visit_cnt;
+	return (double)reward_sum_ / visit_cnt;
 }
 
 void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
