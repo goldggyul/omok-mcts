@@ -19,6 +19,18 @@ void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint c
 	}
 }
 
+void MonteCarloTree::MonteCarloNode::RecursiveFreeNode() {
+	for (auto* child : children_) {
+		if (child->IsLeafNode()) {
+			delete child;
+		}
+		else {
+			child->RecursiveFreeNode();
+			delete child;
+		}
+	}
+}
+
 void MonteCarloTree::MonteCarloNode::AddChildren() {
 	// 현재 게임이 종료되었으므로 child를 더하는 것이 의미가 없음
 	if (IsGameOver()) {
@@ -96,7 +108,6 @@ Move MonteCarloTree::GetMctsBestMove() {
 	// 횟수 적절히 조절 필요
 	uint rollout_cnt = 0;
 
-
 	auto start = std::chrono::steady_clock::now();
 	long long elapsed=0;
 	while (true) {
@@ -149,12 +160,12 @@ void MonteCarloTree::MonteCarloNode::RecursiveRollout() {
 }
 
 void MonteCarloTree::MonteCarloNode::Rollout() {
-	Omok board = omok_;
+	Omok omok = omok_;
 	Turn turn = move_.turn;
 
-	while (!board.IsGameOver()) {
+	while (!omok.IsGameOver()) {
 		turn = (turn == Turn::Black) ? Turn::White : Turn::Black;
-		std::vector<Move> possible_moves = GetPossibleMoves(board, turn);
+		std::vector<Move> possible_moves = GetPossibleMoves(omok, turn);
 		// 시드값을 얻기 위한 random_device 생성
 		std::random_device rd;
 		// random_device 를 통해 난수 생성 엔진을 초기화
@@ -164,9 +175,9 @@ void MonteCarloTree::MonteCarloNode::Rollout() {
 
 		uint index = dis(gen);
 		Move next_move = possible_moves.at(index);
-		board.PutNextMove(next_move);
+		omok.PutNextMove(next_move);
 	}
-	Backpropagation(board.GetResult());
+	Backpropagation(omok.GetResult());
 }
 
 void MonteCarloTree::MonteCarloNode::Backpropagation(Turn winner) {

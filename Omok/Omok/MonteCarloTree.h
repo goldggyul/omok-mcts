@@ -15,7 +15,8 @@ public:
 		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0}, exploration_parameter);
 	}
 	~MonteCarloTree() {
-		// TODO: Node들 메모리 해제
+		root_->RecursiveFreeNode();
+		delete root_;
 	}
 	void AddNodesUntilMaxDepth(uint max_depth);
 	Move GetMctsBestMove();
@@ -34,6 +35,7 @@ private:
 			omok_.PutNextMove(move);
 		}
 
+		void RecursiveFreeNode();
 		void AddChildren();
 		std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
 		// MCTS
