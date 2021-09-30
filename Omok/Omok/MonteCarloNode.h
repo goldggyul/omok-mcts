@@ -14,22 +14,14 @@
 
 class MonteCarloNode {
 public:
-	// 노드가 트리 루트일때
-	MonteCarloNode(const Omok& omok, Move move, double exploration_parameter)
-		:omok_(omok), move_(move), reward_sum_(0), visit_cnt(0), parent_(nullptr), exploration_parameter_(exploration_parameter) {}
-	// 노드가 트리 루트가 아닐 때 -> Parent와 연결
 	MonteCarloNode(const Omok& omok, Move move, double exploration_parameter, MonteCarloNode* parent)
-		:MonteCarloNode(omok, move, exploration_parameter)
-	{
-		parent_ = parent;
-		omok_.PutNextMove(move);
-	}
+		:omok_(omok), move_(move), reward_sum_(0), visit_cnt_(0), parent_(parent), exploration_parameter_(exploration_parameter) {}
 	MonteCarloNode(const MonteCarloNode& other)
-		:MonteCarloNode(other.omok_, other.move_, exploration_parameter_)
-	{
+		:MonteCarloNode(other.omok_, other.move_, other.exploration_parameter_, nullptr) {}
 
-	}
-
+	void SetParent(MonteCarloNode* parent);
+	MonteCarloNode* MakeCopyOfTree();
+	void MakeCopyOfChildrenToOther(MonteCarloNode* parent);
 	void FreeTreeNode();
 	void RecursiveFreeNode();
 	void AddChildren();
@@ -44,16 +36,22 @@ public:
 	double CalculateUct() const;
 	MonteCarloNode* ChoseBestChild();
 	double CalculateEvaluation() const;
+	
+	void MergeRootNode(MonteCarloNode* other);
 
 	bool IsGameOver();
 	void PrintBoard() const;
 	void PrintInfo(std::ofstream& fout) const;
+	void PrintInfo() const;
 	std::vector<MonteCarloNode*>& GetChildren();
+	void PushToChildren(MonteCarloNode* child) {
+		children_.push_back(child);
+	}
 	Move GetMove() const;
 	bool IsLeafNode() const;
 	bool IsFirstVisit() const;
 	uint GetVisitCnt() const {
-		return visit_cnt;
+		return visit_cnt_;
 	}
 	MonteCarloNode* GetParent();
 
@@ -62,7 +60,7 @@ private:
 	Omok omok_;
 	Move move_;
 	int reward_sum_;
-	uint visit_cnt;
+	uint visit_cnt_;
 	MonteCarloNode* parent_;
 	std::vector<MonteCarloNode*> children_;
 	double exploration_parameter_;

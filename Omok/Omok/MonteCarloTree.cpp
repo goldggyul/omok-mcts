@@ -39,7 +39,7 @@ void MonteCarloTree::Print() {
 	}
 }
 
-Move MonteCarloTree::GetMctsBestMove() {
+void MonteCarloTree::Mcts() {
 	// Initialize
 	std::ofstream fout("uct_info.txt", std::ios::app);
 
@@ -87,9 +87,18 @@ Move MonteCarloTree::GetMctsBestMove() {
 	fout.close();
 	MonteCarloNode* best_child = root_->ChoseBestChild();
 	std::cout << "루트 방문 합: " << root_->GetVisitCnt() << std::endl;
-	PrintRootAndChildrenMapAndUct(best_child);
+	//PrintRootAndChildrenMapAndUct(best_child);
+}
 
+Move MonteCarloTree::GetBestMove()
+{
+	MonteCarloNode* best_child = root_->ChoseBestChild();
 	return best_child->GetMove();
+}
+
+void MonteCarloTree::MergeTreeValues(MonteCarloTree* other)
+{
+	root_->MergeRootNode(other->root_);
 }
 
 void MonteCarloTree::InitialRollout()
@@ -98,11 +107,11 @@ void MonteCarloTree::InitialRollout()
 }
 
 
-void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
+void MonteCarloTree::WriteRootAndChildrenInfoToFile(MonteCarloNode* best_node) {
 
 	std::ofstream fout("uct_info.txt", std::ios::app);
 	fout << "------------------------------------------------------------------------" << std::endl;
-	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |       UCT       |" << std::endl;
+	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |  reward / visit  |" << std::endl;
 	fout << "------------------------------------------------------------------------" << std::endl;
 
 	//std::cout << "------------------------------------------------------------------------" << std::endl;
@@ -129,4 +138,27 @@ void MonteCarloTree::PrintRootAndChildrenMapAndUct(MonteCarloNode* best_node) {
 	fout << "------------------------------------------------------------------------" << std::endl;
 	fout.close();
 
+}
+
+void MonteCarloTree::PrintRootAndChildrenInfoToFile(MonteCarloNode* best_node) {
+	std::cout << "------------------------------------------------------------------------" << std::endl;
+	std::cout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |  reward / visit  |" << std::endl;
+	std::cout << "------------------------------------------------------------------------" << std::endl;
+
+	std::cout << "------------------------------------------------------------------------" << std::endl;
+	std::cout << "Root" << std::endl;
+	root_->PrintBoard();
+
+	uint cnt = 1;
+	for (const auto* child : root_->GetChildren()) {
+		if (child == best_node) {
+			std::cout << "★";
+		}
+		else {
+			// std::cout << std::endl;
+			std::cout << "  |";
+		}
+		child->PrintInfo();
+	}
+	 std::cout << "------------------------------------------------------------------------" << std::endl;
 }

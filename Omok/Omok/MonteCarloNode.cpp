@@ -1,23 +1,5 @@
 #include "MonteCarloNode.h"
 
-void MonteCarloNode::FreeTreeNode()
-{
-	RecursiveFreeNode();
-	delete this;
-}
-
-void MonteCarloNode::RecursiveFreeNode() {
-	for (auto* child : children_) {
-		if (child->IsLeafNode()) {
-			delete child;
-		}
-		else {
-			child->RecursiveFreeNode();
-			delete child;
-		}
-	}
-}
-
 void MonteCarloNode::AddChildren() {
 	// 현재 게임이 종료되었으므로 child를 더하는 것이 의미가 없음
 	if (IsGameOver()) {
@@ -33,7 +15,52 @@ void MonteCarloNode::AddChildren() {
 	}
 	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
 	for (const Move& move : possible_moves) {
-		children_.push_back(new MonteCarloNode(omok_, move, exploration_parameter_, this));
+		MonteCarloNode* child = new MonteCarloNode(omok_, move, exploration_parameter_, this);
+		child->omok_.PutNextMove(move);
+		children_.push_back(child);
+	}
+}
+
+void MonteCarloNode::SetParent(MonteCarloNode* parent) {
+	parent_ = parent;
+}
+
+// 오직 루트 노드에서만 불려야됨
+MonteCarloNode* MonteCarloNode::MakeCopyOfTree()
+{
+	MonteCarloNode* copied_root = new MonteCarloNode(omok_, move_, exploration_parameter_, nullptr);
+	MakeCopyOfChildrenToOther(copied_root);
+	return copied_root;
+}
+
+void MonteCarloNode::MakeCopyOfChildrenToOther(MonteCarloNode* parent)
+{
+	if (IsLeafNode()) {
+		return;
+	}
+	for (auto* child : children_) {
+		MonteCarloNode* copy = new MonteCarloNode(*child);
+		copy->SetParent(parent);
+		parent->PushToChildren(copy);
+		child->MakeCopyOfChildrenToOther(copy);
+	}
+}
+
+void MonteCarloNode::FreeTreeNode()
+{
+	RecursiveFreeNode();
+	delete this;
+}
+
+void MonteCarloNode::RecursiveFreeNode() {
+	for (auto* child : children_) {
+		if (child->IsLeafNode()) {
+			delete child;
+		}
+		else {
+			child->RecursiveFreeNode();
+			delete child;
+		}
 	}
 }
 
@@ -141,7 +168,7 @@ void MonteCarloNode::UpdateScore(const Score& score)
 {
 	int reward = score.GetReward(move_.turn);
 	reward_sum_ += reward;
-	visit_cnt += score.GetVisitCnt();
+	visit_cnt_ += score.GetVisitCnt();
 }
 
 void MonteCarloNode::Backpropagation(const Score& score) {
@@ -158,7 +185,7 @@ MonteCarloNode* MonteCarloNode::ChoseChildByUct() {
 	MonteCarloNode* best_children = nullptr;
 
 	for (MonteCarloNode* child : children_) {
-		if (child->visit_cnt == 0) {
+		if (child->visit_cnt_ == 0) {
 			return child;
 		}
 		double uct = child->CalculateUct();
@@ -171,8 +198,8 @@ MonteCarloNode* MonteCarloNode::ChoseChildByUct() {
 }
 
 double MonteCarloNode::CalculateUct() const {
-	double reward_mean = (double)reward_sum_ / visit_cnt;
-	double exploration_term = sqrt(log(parent_->visit_cnt) / visit_cnt);
+	double reward_mean = (double)reward_sum_ / visit_cnt_;
+	double exploration_term = sqrt(log(parent_->visit_cnt_) / visit_cnt_);
 	return reward_mean + exploration_parameter_ * exploration_term;
 }
 
@@ -197,9 +224,18 @@ MonteCarloNode* MonteCarloNode::ChoseBestChild() {
 
 double MonteCarloNode::CalculateEvaluation() const
 {
-	return (double)reward_sum_ / visit_cnt;
+	return (double)reward_sum_ / visit_cnt_;
 }
 
+void MonteCarloNode::MergeRootNode(MonteCarloNode* other)
+{
+	reward_sum_ += other->reward_sum_;
+	visit_cnt_ += other->visit_cnt_;
+	for (uint i = 0; i < children_.size(); i++) {
+		children_[i]->reward_sum_ += other->reward_sum_;
+		children_[i]->visit_cnt_ += other->visit_cnt_;
+	}
+}
 
 void MonteCarloNode::PrintBoard() const {
 	omok_.Print();
@@ -208,7 +244,11 @@ void MonteCarloNode::PrintBoard() const {
 void MonteCarloNode::PrintInfo(std::ofstream& fout) const
 {
 	//std::cout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
-	fout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
+	fout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(17) << visit_cnt_ << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
+}
+void MonteCarloNode::PrintInfo() const
+{
+	std::cout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(17) << visit_cnt_ << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
 }
 
 std::vector<MonteCarloNode*>& MonteCarloNode::GetChildren() {
@@ -228,7 +268,7 @@ bool MonteCarloNode::IsLeafNode() const {
 }
 
 bool MonteCarloNode::IsFirstVisit() const {
-	return visit_cnt == 0;
+	return visit_cnt_ == 0;
 }
 
 MonteCarloNode* MonteCarloNode::GetParent() {

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <thread>
 #include "Player.h"
 #include "MonteCarloTree.h"
 
