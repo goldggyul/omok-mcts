@@ -4,8 +4,8 @@
 
 class AiPlayer : public Player {
 public:
-	AiPlayer(Turn turn_, double exploration_parameter) :Player(turn_), exploration_parameter_(exploration_parameter), cnt_(1){}
-	Move GetFirstMove(const Omok& game_board);
+	AiPlayer(Turn turn_, double exploration_parameter) :Player(turn_), exploration_parameter_(exploration_parameter), cnt_(1) {}
+	Move GetFirstMove(uint size);
 	virtual Move GetNextMove(const Omok& game_board);
 
 private:

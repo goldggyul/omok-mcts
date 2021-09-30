@@ -5,6 +5,7 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include "Omok.h"
 
 // for debugging
@@ -16,8 +17,9 @@ public:
 		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0 }, exploration_parameter);
 	}
 	~MonteCarloTree() {
-		std::thread t(&MonteCarloTree::MonteCarloNode::FreeTreeNode, root_);
-		t.detach();
+		//std::thread t(&MonteCarloTree::MonteCarloNode::FreeTreeNode, root_);
+		//t.detach();
+		root_->FreeTreeNode();
 	}
 
 	void AddNodesUntilMaxDepth(uint max_depth);

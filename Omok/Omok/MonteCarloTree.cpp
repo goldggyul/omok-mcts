@@ -109,14 +109,19 @@ void MonteCarloTree::Print() {
 
 Move MonteCarloTree::GetMctsBestMove() {
 	// Initialize
-	MonteCarloNode* cur_node = root_;
-	InitialRollout();
+	std::ofstream fout("uct_info.txt", std::ios::app);
 
+	MonteCarloNode* cur_node = root_;
 	auto start = std::chrono::steady_clock::now();
-	long long elapsed=0;
+	InitialRollout();
+	auto initial_rollout_end = std::chrono::steady_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(initial_rollout_end - start).count();
+	fout << "     부분 트리 rollout: " << elapsed << "ms 경과" << std::endl;
+	std::cout << "     부분 트리 rollout: " << elapsed << "ms 경과" << std::endl;
+
 	while (true) {
 		auto end = std::chrono::steady_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - initial_rollout_end).count();
 		if (elapsed > 10000) { // 10000ms(10초) 제한
 			break;
 		}
@@ -138,9 +143,8 @@ Move MonteCarloTree::GetMctsBestMove() {
 	}
 
 	// for debugging
-	std::ofstream fout("uct_info.txt", std::ios::app);
-	fout << elapsed << "ms 경과 / " << "rollout 횟수: " << rollout_cnt_ << " / " << std::endl;
-	std::cout << elapsed << "ms 경과 / " << "rollout 횟수: " << rollout_cnt_ << " / " << std::endl;
+	fout << "     rollout 횟수: " << rollout_cnt_ << std::endl;
+	std::cout << "     rollout 횟수: " << rollout_cnt_ << std::endl;
 	fout.close();
 	MonteCarloNode* best_child = root_->ChoseBestChild();
 	PrintRootAndChildrenMapAndUct(best_child);
@@ -189,7 +193,6 @@ void MonteCarloTree::MonteCarloNode::Backpropagation(Turn winner) {
 	// 루트까지 UCT 업데이트
 	MonteCarloNode* cur = this;
 	while (cur != nullptr) {
-		// 일단 패배 무승부 0 승리 1
 		int reward = 0;
 		if (cur->GetTurn() == winner) {
 			reward = 1;

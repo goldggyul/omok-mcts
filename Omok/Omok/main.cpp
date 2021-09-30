@@ -9,7 +9,7 @@ int main() {
 
 	uint black_cnt = 0, white_cnt = 0, draw_cnt = 0;
 	for (uint i = 0; i < 20; i++) {
-		OmokManager omok(size, new AiPlayer(Turn::White, 2), new AiPlayer(Turn::Black, sqrt(2)));
+		OmokManager omok(size, new AiPlayer(Turn::White, sqrt(2)), new AiPlayer(Turn::Black, 2));
 		omok.Play();
 		Turn turn = omok.GetResult();
 		switch (turn) {
@@ -23,8 +23,8 @@ int main() {
 			draw_cnt++;
 			break;
 		}
+		fout2 << "black: " << black_cnt << " white: " << white_cnt << " draw: " << draw_cnt << std::endl;
 	}
-	fout2 << "black: " << black_cnt << "white: " << white_cnt << "draw: " << draw_cnt << std::endl;
 	fout2.close();
 	fout.close();
 
