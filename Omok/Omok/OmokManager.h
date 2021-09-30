@@ -9,33 +9,18 @@
 
 class OmokManager {
 public:
-	OmokManager(uint size, Turn turn) {
+	OmokManager(uint size, Turn ai_turn) {
 		players_[0] = nullptr;
-		if (turn == Turn::Black) {
+		if (ai_turn == Turn::Black) {
+			players_[1] = new AiPlayer(Turn::Black, sqrt(2));
+			players_[2] = new UserPlayer(Turn::White);
+		}
+		else {
 			players_[1] = new UserPlayer(Turn::Black);
 			players_[2] = new AiPlayer(Turn::White, sqrt(2));
 		}
-		else {
-			players_[1] = new AiPlayer(Turn::White, sqrt(2));
-			players_[2] = new UserPlayer(Turn::White);
-		}
-		omok_.SetSize(size);
+		omok_.InitGameBoard(size);
 	}
-
-	// for test
-	OmokManager(uint size, Player* p1, Player* p2) {
-		players_[0] = nullptr;
-		if (p1->GetTurn()==Turn::Black) {
-			players_[1] = p1;
-			players_[2] = p2;
-		}
-		else {
-			players_[1] = p2;
-			players_[2] = p1;
-		}
-		omok_.SetSize(size);
-	}
-
 	~OmokManager() {
 		delete players_[1];
 		delete players_[2];
@@ -43,8 +28,6 @@ public:
 
 	void Play();
 	Turn GetResult() const;
-	void PrintResult() const;
-
 	Player* GetPlayer(Turn turn) {
 		switch (turn) {
 		case Turn::Black:
@@ -55,6 +38,7 @@ public:
 			return nullptr;
 		}
 	}
+
 private:
 	// 2 player지만, 구현 상의 편의를 위해 size 3
 	Player* players_[3];

@@ -1,4 +1,5 @@
 #pragma once
+
 class Score {
 public:
 	Score() {}
@@ -43,6 +44,7 @@ public:
 		white_ += other.white_;
 		return *this;
 	}
+
 private:
 	int none_ = 0;
 	int black_ = 0;

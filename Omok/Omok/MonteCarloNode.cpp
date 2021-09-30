@@ -1,57 +1,12 @@
 #include "MonteCarloNode.h"
 
-void MonteCarloNode::AddChildren() {
-	// 현재 게임이 종료되었으므로 child를 더하는 것이 의미가 없음
-	if (IsGameOver()) {
-		return;
-	}
-	Turn next_turn;
-	// 현재 root 노드인 경우
-	if (parent_ == nullptr) {
-		next_turn = move_.turn;
-	}
-	else {
-		next_turn = (move_.turn == Turn::Black) ? Turn::White : Turn::Black;
-	}
-	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
-	for (const Move& move : possible_moves) {
-		MonteCarloNode* child = new MonteCarloNode(omok_, move, exploration_parameter_, this);
-		child->omok_.PutNextMove(move);
-		children_.push_back(child);
-	}
-}
-
-void MonteCarloNode::SetParent(MonteCarloNode* parent) {
-	parent_ = parent;
-}
-
-// 오직 루트 노드에서만 불려야됨
-MonteCarloNode* MonteCarloNode::MakeCopyOfTree()
-{
-	MonteCarloNode* copied_root = new MonteCarloNode(omok_, move_, exploration_parameter_, nullptr);
-	MakeCopyOfChildrenToOther(copied_root);
-	return copied_root;
-}
-
-void MonteCarloNode::MakeCopyOfChildrenToOther(MonteCarloNode* parent)
-{
-	if (IsLeafNode()) {
-		return;
-	}
-	for (auto* child : children_) {
-		MonteCarloNode* copy = new MonteCarloNode(*child);
-		copy->SetParent(parent);
-		parent->PushToChildren(copy);
-		child->MakeCopyOfChildrenToOther(copy);
-	}
-}
-
+// 루트 노드에서 호출
+// 자식 노드들 메모리 해제하고 마지막으로 자신 해체
 void MonteCarloNode::FreeTreeNode()
 {
 	RecursiveFreeNode();
 	delete this;
 }
-
 void MonteCarloNode::RecursiveFreeNode() {
 	for (auto* child : children_) {
 		if (child->IsLeafNode()) {
@@ -64,8 +19,129 @@ void MonteCarloNode::RecursiveFreeNode() {
 	}
 }
 
-std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
-{
+// 루트 노드에서 호출, MCTS 시작 전 부분 트리를 만듦
+MonteCarloNode* MonteCarloNode::MakeCopyOfTree() {
+	MonteCarloNode* copied_root = new MonteCarloNode(omok_, move_, exploration_parameter_, nullptr);
+	CopyChildrenToOtherNode(copied_root);
+	return copied_root;
+}
+void MonteCarloNode::CopyChildrenToOtherNode(MonteCarloNode* parent) {
+	if (IsLeafNode()) {
+		return;
+	}
+	for (auto* child : children_) {
+		MonteCarloNode* copy = new MonteCarloNode(*child);
+		copy->SetParent(parent);
+		parent->PushToChildren(copy);
+		child->CopyChildrenToOtherNode(copy);
+	}
+}
+
+// 모든 Rollout 함수는 마지막에 자신의 score만 업데이트하고 종료
+// 즉 BackPropagtion이 필요하다면 따로 호출
+Score MonteCarloNode::Rollout() {
+	Omok omok = omok_;
+	Turn turn = move_.turn;
+
+	while (!omok.IsGameOver()) {
+		turn = (turn == Turn::Black) ? Turn::White : Turn::Black;
+		std::vector<Move> possible_moves = GetPossibleMoves(omok, turn);
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> dis(0, possible_moves.size() - 1);
+
+		uint index = dis(gen);
+		Move next_move = possible_moves.at(index);
+		omok.PutNextMove(next_move);
+	}
+	Score result(omok.GetResult());
+	// 자신의 값 업데이트
+	UpdateScore(result);
+	return result;
+}
+
+Score MonteCarloNode::RolloutLeafChild() {
+	Score total_score;
+	
+	// future이용, 병렬로 모든 LeafChild를 rollout 후에 결과를 모아서 score 업데이트
+	std::vector<std::future<Score>> futures;
+	for (MonteCarloNode* node : children_) {
+		if (node->IsLeafNode()) {
+			futures.push_back(std::async(&MonteCarloNode::Rollout, node));
+		}
+		else {
+			total_score += node->RolloutLeafChild();
+		}
+	}
+	for (auto& e : futures) {
+		total_score += e.get();
+	}
+	// 자신의 값 업데이트
+	UpdateScore(total_score);
+	return total_score;
+}
+
+// cnt만큼의 child를 랜덤으로 선택하여 rollout
+Score MonteCarloNode::RandomRollout(uint cnt) {
+	if (children_.size() == 0) {
+		return Score();
+	}
+
+	std::vector<uint> random_idx(children_.size());
+	for (uint i = 0; i < children_.size(); i++) {
+		random_idx[i] = i;
+	}
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(random_idx.begin(), random_idx.end(), gen);
+
+	std::vector<std::future<Score>> futures;
+	// 랜덤으로 child 선택 cnt개 선택
+	for (uint i = 0; i < cnt; i++) {
+		futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
+	}
+	Score total_score;
+	for (auto& e : futures) {
+		total_score += e.get();
+	}
+	// 자신의 값 업데이트
+	UpdateScore(total_score);
+	return total_score;
+}
+
+bool MonteCarloNode::IsGameOver() {
+	return omok_.IsGameOver();
+}
+
+void MonteCarloNode::UpdateScore(const Score& score) {
+	uint reward = score.GetReward(move_.turn);
+	reward_sum_ += reward;
+	visit_cnt_ += score.GetVisitCnt();
+}
+
+void MonteCarloNode::AddChildren() {
+	// 현재 게임이 종료되었으므로 child를 더하는 것이 의미가 없음
+	if (IsGameOver()) {
+		return;
+	}
+	Turn next_turn;
+	// 현재 root 노드인 경우
+	if (parent_ == nullptr) {
+		next_turn = move_.turn;
+	} else {
+		next_turn = (move_.turn == Turn::Black) ? Turn::White : Turn::Black;
+	}
+	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
+	for (const Move& move : possible_moves) {
+		MonteCarloNode* child = new MonteCarloNode(omok_, move, exploration_parameter_, this);
+		child->omok_.PutNextMove(move);
+		children_.push_back(child);
+	}
+}
+
+// 다른 수가 놓여져있지 않다면 무조건 리턴. 즉, 게임 종료 여부를 체크하지 않음
+std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn) {
 	std::vector<Move> possible_moves;
 
 	uint size = board.GetSize();
@@ -95,84 +171,8 @@ std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
 	return possible_moves;
 }
 
-
-Score MonteCarloNode::RolloutLeafChild() {
-	Score total_score;
-	std::vector<std::future<Score>> futures;
-	for (MonteCarloNode* node : children_) {
-		if (node->IsLeafNode()) {
-			futures.push_back(std::async(&MonteCarloNode::Rollout, node));
-		}
-		else {
-			total_score += node->RolloutLeafChild();
-		}
-	}
-	for (auto& e : futures) {
-		total_score += e.get();
-	}
-	// 자신의 값 업데이트
-	UpdateScore(total_score);
-	return total_score;
-}
-
-Score MonteCarloNode::RandomRollout() {
-	if (children_.size() == 0) {
-		return Score();
-	}
-
-	std::vector<uint> random_idx(children_.size());
-	for (uint i = 0; i < children_.size(); i++) {
-		random_idx[i] = i;
-	}
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::shuffle(random_idx.begin(), random_idx.end(), gen);
-
-	std::vector<std::future<Score>> futures;
-	// 랜덤으로 child 선택: 4개 선택
-	for (uint i = 0; i < 4; i++) {
-		futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
-	}
-	Score total_score;
-	for (auto& e : futures) {
-		total_score += e.get();
-	}
-	// 자신의 값 업데이트
-	UpdateScore(total_score);
-	return total_score;
-}
-
-Score MonteCarloNode::Rollout() {
-	Omok omok = omok_;
-	Turn turn = move_.turn;
-
-	while (!omok.IsGameOver()) {
-		turn = (turn == Turn::Black) ? Turn::White : Turn::Black;
-		std::vector<Move> possible_moves = GetPossibleMoves(omok, turn);
-
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dis(0, possible_moves.size() - 1);
-
-		uint index = dis(gen);
-		Move next_move = possible_moves.at(index);
-		omok.PutNextMove(next_move);
-	}
-	Score result(omok.GetResult());
-	// 자신의 값 업데이트
-	UpdateScore(result);
-	return result;
-}
-
-void MonteCarloNode::UpdateScore(const Score& score)
-{
-	int reward = score.GetReward(move_.turn);
-	reward_sum_ += reward;
-	visit_cnt_ += score.GetVisitCnt();
-}
-
 void MonteCarloNode::Backpropagation(const Score& score) {
-	// 루트까지 UCT 업데이트
+	// 루트까지 score 업데이트, 맨 처음 호출한 노드는 제외
 	MonteCarloNode* cur = this->parent_;
 	while (cur != nullptr) {
 		cur->UpdateScore(score);
@@ -203,32 +203,7 @@ double MonteCarloNode::CalculateUct() const {
 	return reward_mean + exploration_parameter_ * exploration_term;
 }
 
-MonteCarloNode* MonteCarloNode::ChoseBestChild() {
-	double best_eval = 0.0;
-	MonteCarloNode* best_children = nullptr;
-
-	// for debugging
-	uint sum = 0;
-
-	for (MonteCarloNode* child : children_) {
-		sum += child->GetVisitCnt();
-		double eval = child->CalculateEvaluation();
-		if (best_children == nullptr || eval > best_eval) {
-			best_eval = eval;
-			best_children = child;
-		}
-	}
-	std::cout << "child visit 총 합: " << sum << std::endl;
-	return best_children;
-}
-
-double MonteCarloNode::CalculateEvaluation() const
-{
-	return (double)reward_sum_ / visit_cnt_;
-}
-
-void MonteCarloNode::MergeRootNode(MonteCarloNode* other)
-{
+void MonteCarloNode::MergeRootAndChild(MonteCarloNode* other) {
 	reward_sum_ += other->reward_sum_;
 	visit_cnt_ += other->visit_cnt_;
 	for (uint i = 0; i < children_.size(); i++) {
@@ -237,44 +212,24 @@ void MonteCarloNode::MergeRootNode(MonteCarloNode* other)
 	}
 }
 
-void MonteCarloNode::PrintBoard() const {
-	omok_.Print();
+Move MonteCarloNode::ChoseBestMove() const {
+	double best_eval = 0.0;
+	MonteCarloNode* best_children = nullptr;
+
+	for (MonteCarloNode* child : children_) {
+		double eval = child->CalculateEvaluation();
+		if (best_children == nullptr || eval > best_eval) {
+			best_eval = eval;
+			best_children = child;
+		}
+	}
+
+	if (best_children == nullptr) {
+		return Move(Turn::None, 0, 0);
+	}
+	return best_children->move_;
 }
 
-void MonteCarloNode::PrintInfo(std::ofstream& fout) const
-{
-	//std::cout << std::setw(16) << parent_->visit_cnt << "|" << std::setw(17) << visit_cnt << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateUct() << "|" << std::endl;
-	fout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(17) << visit_cnt_ << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
-}
-void MonteCarloNode::PrintInfo() const
-{
-	std::cout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(17) << visit_cnt_ << "|" << std::setw(16) << reward_sum_ << "|" << std::setw(16) << CalculateEvaluation() << "|" << std::endl;
-}
-
-std::vector<MonteCarloNode*>& MonteCarloNode::GetChildren() {
-	return children_;
-}
-
-bool MonteCarloNode::IsGameOver() {
-	return omok_.IsGameOver();
-}
-
-Move MonteCarloNode::GetMove() const {
-	return move_;
-}
-
-bool MonteCarloNode::IsLeafNode() const {
-	return children_.empty();
-}
-
-bool MonteCarloNode::IsFirstVisit() const {
-	return visit_cnt_ == 0;
-}
-
-MonteCarloNode* MonteCarloNode::GetParent() {
-	return parent_;;
-}
-
-Turn MonteCarloNode::GetTurn() const {
-	return move_.turn;
+double MonteCarloNode::CalculateEvaluation() const {
+	return (double)reward_sum_ / visit_cnt_;
 }

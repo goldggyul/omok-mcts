@@ -1,6 +1,6 @@
 ﻿#include "Omok.h"
 
-void Omok::SetSize(uint size) {
+void Omok::InitGameBoard(uint size) {
 	size_ = size;
 	board_ = GetBoardArray();
 }
@@ -80,7 +80,7 @@ bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) 
 	}
 }
 
-void Omok::Print() const {
+void Omok::PrintBoard() const {
 	std::cout << std::endl;
 	std::cout.setf(std::ios::left);
 

@@ -3,30 +3,33 @@
 
 int main() {
 	uint size=12;
-	Turn user_turn = Turn::Black;
-	std::ofstream fout("uct_info.txt");
-	std::ofstream fout2("win_log.txt");
+	Turn ai_turn = Turn::Black;
 
-	uint black_cnt = 0, white_cnt = 0, draw_cnt = 0;
-	for (uint i = 0; i < 10; i++) {
-		OmokManager omok(size, new AiPlayer(Turn::White, sqrt(2)), new UserPlayer(Turn::Black));
-		omok.Play();
-		Turn turn = omok.GetResult();
-		switch (turn) {
-		case Turn::Black:
-			black_cnt++;
-			break;
-		case Turn::White:
-			white_cnt++;
-			break;
-		case Turn::None:
-			draw_cnt++;
-			break;
-		}
-		fout2 << "black: " << black_cnt << " white: " << white_cnt << " draw: " << draw_cnt << std::endl;
+	std::string user_input;
+	std::cout << "size? ";
+	std::cin >> size;
+	std::cout << "AI turn? ";
+	std::cin >> user_input;
+
+	if (user_input == "black") {
+		ai_turn = Turn::Black;
+	} else if (user_input == "white"){
+		ai_turn = Turn::White;
 	}
-	fout2.close();
-	fout.close();
+
+	OmokManager omok_manager(size, ai_turn);
+	omok_manager.Play();
+
+	Turn turn = omok_manager.GetResult();
+	if (turn == ai_turn) {
+		std::cout << "win" << std::endl;
+	}
+	else if (turn == Turn::None) {
+		std::cout << "draw" << std::endl;
+	}
+	else {
+		std::cout << "lose" << std::endl;
+	}
 
 	return 0;
 }
