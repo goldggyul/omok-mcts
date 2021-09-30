@@ -41,29 +41,29 @@ void Omok::PutNextMove(const Move& next_move) {
 	board_[next_move.x][next_move.y] = next_move.turn;
 }
 
-bool Omok::IsRightCompleted(Move cur_move, uint max_cnt) {
+bool Omok::IsRightCompleted(Move cur_move, uint max_cnt) const {
 	// dm: 변화량. 우측 확인하므로 dx==0, dy==1
 	Move dm(cur_move.turn,0,1);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
-bool Omok::IsDownCompleted(Move cur_move, uint max_cnt) {
+bool Omok::IsDownCompleted(Move cur_move, uint max_cnt) const {
 	Move dm(cur_move.turn,1,0);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
-bool Omok::IsDownDiagonalCompleted(Move cur_move, uint max_cnt) {
+bool Omok::IsDownDiagonalCompleted(Move cur_move, uint max_cnt) const {
 	Move dm(cur_move.turn,1,1 );
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
-bool Omok::IsUpDiagonalCompleted(Move cur_move, uint max_cnt) {
+bool Omok::IsUpDiagonalCompleted(Move cur_move, uint max_cnt) const {
 	Move dm(cur_move.turn, -1, 1);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
 // Recursive: dm씩 이동하면서 5개가 완성되었는지 확인
-bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) {
+bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) const {
 	if (count == 5) {
 		return true;
 	}

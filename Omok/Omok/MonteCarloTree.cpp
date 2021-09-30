@@ -133,8 +133,9 @@ Move MonteCarloTree::GetMctsBestMove() {
 					cur_node = cur_node->GetChildren().at(0);
 				}
 			}
-			cur_node->Rollout();
+			Score score=cur_node->Rollout();
 			rollout_cnt_++;
+			cur_node->Backpropagation(score);
 			cur_node = root_;
 		}
 		else {
@@ -147,6 +148,7 @@ Move MonteCarloTree::GetMctsBestMove() {
 	std::cout << "     rollout 횟수: " << rollout_cnt_ << std::endl;
 	fout.close();
 	MonteCarloNode* best_child = root_->ChoseBestChild();
+	std::cout <<"루트 방문 합: " << root_->GetVisitCnt() << std::endl;
 	PrintRootAndChildrenMapAndUct(best_child);
 
 	return best_child->GetMove();
@@ -154,51 +156,85 @@ Move MonteCarloTree::GetMctsBestMove() {
 
 void MonteCarloTree::InitialRollout()
 {
-	root_->RecursiveRollout();
+	Score score = root_->RecursiveRollout();
 }
 
-void MonteCarloTree::MonteCarloNode::RecursiveRollout() {
+Score MonteCarloTree::MonteCarloNode::RecursiveRollout() {
+	Score total_score;
+	std::mutex score_mtx;
+
+	std::vector<std::thread> rollout_workers;
 	for (MonteCarloNode* node : children_) {
 		if (node->IsLeafNode()) {
-			node->Rollout();
+			// v2. thread and mutex
+			rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
+				Score score = node->Rollout();
+				score_mtx.lock();
+				total_score += score;
+				score_mtx.unlock();
+				}));
+
+			// v1. no thread
+			Score score = node->Rollout();
+			total_score += score;
 		}
 		else {
-			node->RecursiveRollout();
+			// v2. thread and mutex
+			rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
+				Score score = node->RecursiveRollout();
+				score_mtx.lock();
+				total_score += score;
+				score_mtx.unlock();
+				}));
+
+			// v1. no thread
+			//Score score = node->RecursiveRollout();
+			//total_score += score;
 		}
 	}
+
+	// v2. thread and mutex
+	for (auto& e : rollout_workers) {
+		e.join();
+	}
+	UpdateScore(total_score);
+	return total_score;
 }
 
-void MonteCarloTree::MonteCarloNode::Rollout() {
+Score MonteCarloTree::MonteCarloNode::Rollout() {
 	Omok omok = omok_;
 	Turn turn = move_.turn;
 
 	while (!omok.IsGameOver()) {
 		turn = (turn == Turn::Black) ? Turn::White : Turn::Black;
 		std::vector<Move> possible_moves = GetPossibleMoves(omok, turn);
-		// 시드값을 얻기 위한 random_device 생성
+
 		std::random_device rd;
-		// random_device 를 통해 난수 생성 엔진을 초기화
 		std::mt19937 gen(rd());
-		// 0 부터 size 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의
 		std::uniform_int_distribution<int> dis(0, possible_moves.size() - 1);
 
 		uint index = dis(gen);
 		Move next_move = possible_moves.at(index);
 		omok.PutNextMove(next_move);
 	}
-	Backpropagation(omok.GetResult());
+	Score result(omok.GetResult());
+	// 자신의 값 업데이트
+	UpdateScore(result);
+	return result;
 }
 
-void MonteCarloTree::MonteCarloNode::Backpropagation(Turn winner) {
+void MonteCarloTree::MonteCarloNode::UpdateScore(const Score& score)
+{
+	int reward= score.GetReward(move_.turn);
+	reward_sum_ += reward;
+	visit_cnt += score.GetVisitCnt();
+}
+
+void MonteCarloTree::MonteCarloNode::Backpropagation(const Score& score) {
 	// 루트까지 UCT 업데이트
-	MonteCarloNode* cur = this;
+	MonteCarloNode* cur = this->parent_;
 	while (cur != nullptr) {
-		int reward = 0;
-		if (cur->GetTurn() == winner) {
-			reward = 1;
-		}
-		cur->reward_sum_ += reward;
-		cur->visit_cnt += 1;
+		cur->UpdateScore(score);
 		cur = cur->parent_;
 	}
 }
@@ -230,13 +266,18 @@ MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::ChoseBestChild()
 	double best_eval = 0.0;
 	MonteCarloNode* best_children = nullptr;
 
+	// for debugging
+	uint sum = 0;
+
 	for (MonteCarloNode* child : children_) {
+		sum += child->GetVisitCnt();
 		double eval = child->CalculateEvaluation();
 		if (best_children == nullptr || eval > best_eval) {
 			best_eval = eval;
 			best_children = child;
 		}
 	}
+	std::cout << "child visit 총 합: "<<sum << std::endl;
 	return best_children;
 }
 
@@ -308,8 +349,7 @@ bool MonteCarloTree::MonteCarloNode::IsFirstVisit() const {
 	return visit_cnt == 0;
 }
 
-MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::GetParent()
-{
+MonteCarloTree::MonteCarloNode* MonteCarloTree::MonteCarloNode::GetParent() {
 	return parent_;;
 }
 

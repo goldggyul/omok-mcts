@@ -11,9 +11,59 @@
 // for debugging
 #include <fstream>
 
+class Score {
+public:
+	Score() {}
+	Score(int none_, int black_, int white_) :none_(none_), black_(black_), white_(white_) {}
+	Score(const Score& other) {
+		none_ = other.none_;
+		black_ = other.black_;
+		white_ = other.white_;
+	}
+	Score(Turn turn) {
+		switch (turn) {
+		case Turn::Black:
+			black_ = 1;
+			break;
+		case Turn::White:
+			white_ = 1;
+			break;
+		default:
+			none_ = 1;
+			break;
+		}
+	}
+
+	int GetReward(Turn turn)  const {
+		switch (turn) {
+		case Turn::Black:
+			return black_;
+		case Turn::White:
+			return white_;
+		default:
+			return none_;
+		}
+	}
+
+	int GetVisitCnt() const {
+		return none_ + black_ + white_;
+	}
+
+	Score& operator+= (const Score& other) {
+		none_ += other.none_;
+		black_ += other.black_;
+		white_ += other.white_;
+		return *this;
+	}
+private:
+	int none_ = 0;
+	int black_ = 0;
+	int white_ = 0;
+};
+
 class MonteCarloTree {
 public:
-	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter), rollout_cnt_(0){
+	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter), rollout_cnt_(0) {
 		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0 }, exploration_parameter);
 	}
 	~MonteCarloTree() {
@@ -44,9 +94,10 @@ private:
 		void AddChildren();
 		std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
 		// MCTS
-		void RecursiveRollout();
-		void Rollout();
-		void Backpropagation(Turn winner);
+		Score RecursiveRollout();
+		Score Rollout();
+		void UpdateScore(const Score& score);
+		void Backpropagation(const Score& score);
 		MonteCarloNode* ChoseChildByUct();
 		double CalculateUct() const;
 		MonteCarloNode* ChoseBestChild();
@@ -59,6 +110,9 @@ private:
 		Move GetMove() const;
 		bool IsLeafNode() const;
 		bool IsFirstVisit() const;
+		uint GetVisitCnt() const {
+			return visit_cnt;
+		}
 		MonteCarloNode* GetParent();
 
 	private:
@@ -81,4 +135,3 @@ private:
 	double exploration_parameter_;
 	uint rollout_cnt_;
 };
-

@@ -8,7 +8,7 @@ int main() {
 	std::ofstream fout2("win_log.txt");
 
 	uint black_cnt = 0, white_cnt = 0, draw_cnt = 0;
-	for (uint i = 0; i < 20; i++) {
+	for (uint i = 0; i < 10; i++) {
 		OmokManager omok(size, new AiPlayer(Turn::White, sqrt(2)), new AiPlayer(Turn::Black, 2));
 		omok.Play();
 		Turn turn = omok.GetResult();

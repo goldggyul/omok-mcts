@@ -89,11 +89,11 @@ public:
 	}
 
 private:
-	bool IsRightCompleted(Move cur_move, uint max_cnt);
-	bool IsDownCompleted(Move cur_move, uint max_cnt);
-	bool IsDownDiagonalCompleted(Move cur_move, uint max_cnt);
-	bool IsUpDiagonalCompleted(Move cur_move, uint max_cnt);
-	bool IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt);
+	bool IsRightCompleted(Move cur_move, uint max_cnt) const;
+	bool IsDownCompleted(Move cur_move, uint max_cnt) const;
+	bool IsDownDiagonalCompleted(Move cur_move, uint max_cnt) const;
+	bool IsUpDiagonalCompleted(Move cur_move, uint max_cnt) const;
+	bool IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) const;
 
 	uint size_;
 	uint move_count_;
