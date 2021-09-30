@@ -19,6 +19,12 @@ void MonteCarloTree::RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint c
 	}
 }
 
+void MonteCarloTree::MonteCarloNode::FreeTreeNode()
+{
+	RecursiveFreeNode();
+	delete this;
+}
+
 void MonteCarloTree::MonteCarloNode::RecursiveFreeNode() {
 	for (auto* child : children_) {
 		if (child->IsLeafNode()) {
@@ -105,8 +111,6 @@ Move MonteCarloTree::GetMctsBestMove() {
 	// Initialize
 	MonteCarloNode* cur_node = root_;
 	InitialRollout();
-	// È½¼ö ÀûÀýÈ÷ Á¶Àý ÇÊ¿ä
-	uint rollout_cnt = 0;
 
 	auto start = std::chrono::steady_clock::now();
 	long long elapsed=0;
@@ -125,7 +129,7 @@ Move MonteCarloTree::GetMctsBestMove() {
 				}
 			}
 			cur_node->Rollout();
-			rollout_cnt++;
+			rollout_cnt_++;
 			cur_node = root_;
 		}
 		else {
@@ -135,7 +139,8 @@ Move MonteCarloTree::GetMctsBestMove() {
 
 	// for debugging
 	std::ofstream fout("uct_info.txt", std::ios::app);
-	fout << elapsed << "ms °æ°ú / " << "rollout È½¼ö: " << rollout_cnt << " / " << std::endl;
+	fout << elapsed << "ms °æ°ú / " << "rollout È½¼ö: " << rollout_cnt_ << " / " << std::endl;
+	std::cout << elapsed << "ms °æ°ú / " << "rollout È½¼ö: " << rollout_cnt_ << " / " << std::endl;
 	fout.close();
 	MonteCarloNode* best_child = root_->ChoseBestChild();
 	PrintRootAndChildrenMapAndUct(best_child);

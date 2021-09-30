@@ -26,6 +26,7 @@ Move AiPlayer::GetNextMove(const Omok& game_board)
 	auto end = std::chrono::steady_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	fout << "총" << elapsed << "ms 경과" << std::endl << std::endl;
+	std::cout << "총" << elapsed << "ms 경과" << std::endl << std::endl;
 	fout.close();
 	return next_move;
 }

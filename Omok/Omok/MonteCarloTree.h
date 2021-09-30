@@ -3,21 +3,23 @@
 #include <queue>
 #include <random>
 #include <cmath>
+#include <chrono>
+#include <thread>
 #include "Omok.h"
 
 // for debugging
 #include <fstream>
-#include <chrono>
 
 class MonteCarloTree {
 public:
-	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter){
-		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0}, exploration_parameter);
+	MonteCarloTree(const Omok& game_board, Turn ai_turn, double exploration_parameter) :ai_turn_(ai_turn), exploration_parameter_(exploration_parameter), rollout_cnt_(0){
+		root_ = new MonteCarloNode(game_board, Move{ ai_turn_,0,0 }, exploration_parameter);
 	}
 	~MonteCarloTree() {
-		root_->RecursiveFreeNode();
-		delete root_;
+		std::thread t(&MonteCarloTree::MonteCarloNode::FreeTreeNode, root_);
+		t.detach();
 	}
+
 	void AddNodesUntilMaxDepth(uint max_depth);
 	Move GetMctsBestMove();
 	void InitialRollout();
@@ -35,6 +37,7 @@ private:
 			omok_.PutNextMove(move);
 		}
 
+		void FreeTreeNode();
 		void RecursiveFreeNode();
 		void AddChildren();
 		std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
@@ -74,5 +77,6 @@ private:
 	MonteCarloNode* root_;
 	Turn ai_turn_;
 	double exploration_parameter_;
+	uint rollout_cnt_;
 };
 
