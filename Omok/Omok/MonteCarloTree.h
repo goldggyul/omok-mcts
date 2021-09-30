@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <future>
 #include "Omok.h"
 
 // for debugging

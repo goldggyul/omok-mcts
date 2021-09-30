@@ -161,31 +161,40 @@ void MonteCarloTree::InitialRollout()
 
 Score MonteCarloTree::MonteCarloNode::RecursiveRollout() {
 	Score total_score;
-	std::mutex score_mtx;
 
-	std::vector<std::thread> rollout_workers;
+	// v2. thread and mutex
+	//std::mutex score_mtx;
+	//std::vector<std::thread> rollout_workers;
+
+	// v3. future
+	std::vector<std::future<Score>> futures;
 	for (MonteCarloNode* node : children_) {
 		if (node->IsLeafNode()) {
+			// v3. future
+			futures.push_back(std::async(&MonteCarloTree::MonteCarloNode::Rollout, node));
 			// v2. thread and mutex
-			rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
-				Score score = node->Rollout();
-				score_mtx.lock();
-				total_score += score;
-				score_mtx.unlock();
-				}));
+			//rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
+			//	Score score = node->Rollout();
+			//	score_mtx.lock();
+			//	total_score += score;
+			//	score_mtx.unlock();
+			//	}));
 
-			// v1. no thread
-			Score score = node->Rollout();
-			total_score += score;
+			//// v1. no thread
+			//Score score = node->Rollout();
+			//total_score += score;
 		}
 		else {
+			// v3. future
+			futures.push_back(std::async(&MonteCarloTree::MonteCarloNode::RecursiveRollout, node));
+
 			// v2. thread and mutex
-			rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
-				Score score = node->RecursiveRollout();
-				score_mtx.lock();
-				total_score += score;
-				score_mtx.unlock();
-				}));
+			//rollout_workers.push_back(std::thread([node, &total_score, &score_mtx] {
+			//	Score score = node->RecursiveRollout();
+			//	score_mtx.lock();
+			//	total_score += score;
+			//	score_mtx.unlock();
+			//	}));
 
 			// v1. no thread
 			//Score score = node->RecursiveRollout();
@@ -194,8 +203,13 @@ Score MonteCarloTree::MonteCarloNode::RecursiveRollout() {
 	}
 
 	// v2. thread and mutex
-	for (auto& e : rollout_workers) {
-		e.join();
+	//for (auto& e : rollout_workers) {
+	//	e.join();
+	//}
+
+	// v3. future
+	for (auto& e : futures) {
+		total_score += e.get();
 	}
 	UpdateScore(total_score);
 	return total_score;
