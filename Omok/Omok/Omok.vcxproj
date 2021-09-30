@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AiPlayer.cpp" />
+    <ClCompile Include="MonteCarloNode.cpp" />
     <ClCompile Include="Omok.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MonteCarloTree.cpp" />
@@ -149,11 +150,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AiPlayer.h" />
+    <ClInclude Include="MonteCarloNode.h" />
     <ClInclude Include="Omok.h" />
     <ClInclude Include="MonteCarloTree.h" />
     <ClInclude Include="OmokManager.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RandomPlayer.h" />
+    <ClInclude Include="Score.h" />
     <ClInclude Include="UserPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

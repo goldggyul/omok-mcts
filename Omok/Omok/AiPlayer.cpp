@@ -25,6 +25,17 @@ Move AiPlayer::GetNextMove(const Omok& game_board)
 	fout << "> 부분 트리 생성: " << elapsed << "ms 경과" << std::endl;
 	std::cout << "> 부분 트리 생성: " << elapsed << "ms 경과" << std::endl;
 
+	std::vector<MonteCarloTree*> trees;
+	trees.push_back(tree);
+	// 세 개 복사
+	for (uint i = 0; i < 3; i++) {
+		trees.push_back(new MonteCarloTree(*tree));
+	}
+	// 복사 후 바로 GetMctsBestMove
+
+	// Merge tree
+
+
 	Move next_move = tree->GetMctsBestMove();
 	auto next_move_end = std::chrono::steady_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(next_move_end - tree_end).count();
