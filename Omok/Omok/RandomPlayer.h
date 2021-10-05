@@ -5,6 +5,6 @@
 class RandomPlayer : public Player {
 public:
 	RandomPlayer(Turn turn_) :Player(turn_) {}
-	virtual Move GetNextMove(const Omok& game_board);
+	virtual Move GetNextMove(const Omok& omok);
 };
 

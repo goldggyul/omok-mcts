@@ -1,22 +1,17 @@
 ﻿#pragma once
-#include <iostream>
-#include <string>
-#include "Player.h"
 #include "UserPlayer.h"
 #include "AiPlayer.h"
-#include "RandomPlayer.h"
-#include "Omok.h"
 
 class OmokManager {
 public:
 	OmokManager(uint size, Turn ai_turn) {
 		players_[0] = nullptr;
 		if (ai_turn == Turn::Black) {
-			players_[1] = new AiPlayer(Turn::Black, 1 / sqrt(2));
+			players_[1] = new AiPlayer(Turn::Black, sqrt(2));
 			players_[2] = new UserPlayer(Turn::White);
 		} else {
 			players_[1] = new UserPlayer(Turn::Black);
-			players_[2] = new AiPlayer(Turn::White, 1 / sqrt(2));
+			players_[2] = new AiPlayer(Turn::White, sqrt(2));
 		}
 		omok_.InitGameBoard(size);
 	}

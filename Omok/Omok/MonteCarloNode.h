@@ -45,7 +45,7 @@ public:
 	bool IsEnoughSearch() const;
 	void UpdateScore(const Score& score);
 	void AddChildren();
-	std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
+	std::vector<Move> GetPossibleMoves(const Omok& omok, Turn turn);
 	void Backpropagation(const Score& score);
 
 	MonteCarloNode* SelectChildByUct();

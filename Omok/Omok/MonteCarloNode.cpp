@@ -102,6 +102,7 @@ Score MonteCarloNode::RandomRollout(uint child_cnt) {
 	for (auto& e : futures) {
 		total_score += e.get();
 	}
+
 	// 자신의 값 업데이트
 	UpdateScore(total_score);
 	return total_score;
@@ -112,11 +113,31 @@ bool MonteCarloNode::IsGameOver() {
 }
 
 bool MonteCarloNode::IsEnoughSearch() const {
-	// 8쓰레드 기준 루트 최소 100,000번 방문하도록
-	// 1쓰레드는 12,500번 방문
-	if (visit_cnt_ > 12500) {
+	uint max_visit = 10000, min_visit = 600;
+
+	if (visit_cnt_ > max_visit) {
+		return true;
+	} else if (visit_cnt_ < min_visit) {
+		return false;
+	}
+
+	// 방문 횟수 1등과 2등이 최소 방문수 이상 차이나면 충분히 탐색한 것으로 판단
+	MonteCarloNode* first_child = nullptr;
+	MonteCarloNode* second_child = nullptr;
+	for (MonteCarloNode* child : children_) {
+		if (first_child == nullptr || child->visit_cnt_ > first_child->visit_cnt_) {
+			second_child = first_child;
+			first_child = child;
+		} else if (second_child == nullptr || child->visit_cnt_ > second_child->visit_cnt_) {
+			second_child = child;
+		}
+	}
+	if (!first_child || !second_child) {
+		return false;
+	} else if (first_child->visit_cnt_ > second_child->visit_cnt_ + min_visit) {
 		return true;
 	}
+
 	return false;
 }
 

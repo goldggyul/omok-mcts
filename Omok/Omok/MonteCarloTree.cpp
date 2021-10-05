@@ -31,7 +31,7 @@ void MonteCarloTree::Mcts() {
 		auto cur_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - init_end).count();
 		if (root_->IsEnoughSearch()) {
 			break;
-		} else if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10초) 제한
+		} else if (cur_elapsed > 5000 - init_elapsed - 30) { // 5000ms(5초) 제한
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
@@ -40,12 +40,9 @@ void MonteCarloTree::Mcts() {
 				score = cur_node->Rollout();
 			} else {
 				cur_node->AddChildren();
-				if (cur_node->IsLeafNode()) {
-					score = cur_node->Rollout();
-					// 지정 개수의 child만 랜덤으로 골라서 rollout
-					int child_cnt = 4;
-					score = cur_node->RandomRollout(child_cnt);
-				}
+				// 지정 개수의 child만 랜덤으로 골라서 rollout
+				int child_cnt = 4;
+				score = cur_node->RandomRollout(child_cnt);
 			}
 			cur_node->Backpropagation(score);
 			cur_node = root_;

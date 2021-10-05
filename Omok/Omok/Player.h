@@ -6,7 +6,7 @@ public:
 	Player(Turn turn_) : turn_(turn_) {}
 	virtual ~Player() = default;
 
-	virtual Move GetNextMove(const Omok& game_board) = 0;
+	virtual Move GetNextMove(const Omok& omok) = 0;
 
 protected:
 	Turn turn_;

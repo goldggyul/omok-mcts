@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include "OmokManager.h"
+﻿#include "OmokManager.h"
 
 int main() {
 	uint size = 12;

@@ -145,7 +145,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MonteCarloTree.cpp" />
     <ClCompile Include="OmokManager.cpp" />
-    <ClCompile Include="RandomPlayer.cpp" />
     <ClCompile Include="UserPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
