@@ -110,20 +110,28 @@ Move AiPlayer::GetNextMoveWithPrint(const Omok& omok) {
 
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	start = std::chrono::steady_clock::now();
-	fout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
-	std::cout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
+
+	// 각 트리 출력
+	std::cout << "==========트리===========" << std::endl;
+	fout << "==========트리===========" << std::endl;
+	for (auto tree : *copy_trees) {
+		tree->PrintInfo(fout);
+	}
 
 	// 나머지 트리들의 점수를 첫번째 트리에 합침
 	for (uint i = 1; i < tree_cnt; i++) {
 		first_tree->MergeTreeValues(copy_trees->at(i));
 	}
+
+	std::cout << "==========트리 합===========" << std::endl;
+	fout << "==========트리 합===========" << std::endl;
 	first_tree->PrintInfo(fout);
+
+	fout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
+	std::cout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
+
 	Move next_move = first_tree->GetBestMove();
 
-	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-	start = std::chrono::steady_clock::now();
-	fout << "> 트리 합침: " << elapsed << "ms 경과" << std::endl;
-	std::cout << "> 트리 합침: " << elapsed << "ms 경과" << std::endl;
 
 	// 트리 각 노드들 메모리 해제는 다른 쓰레드에게 맡긴 후 detach(언제 종료되든 상관X)
 	// 삭제에 최대 거의 2초(약 1700ms쯤)까지 걸리기 때문 
@@ -135,10 +143,6 @@ Move AiPlayer::GetNextMoveWithPrint(const Omok& omok) {
 		});
 	tree_deletion.detach();
 
-	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-	start = std::chrono::steady_clock::now();
-	fout << "> 트리 삭제: " << elapsed << "ms 경과" << std::endl << std::endl;
-	std::cout << "> 트리 삭제: " << elapsed << "ms 경과" << std::endl;
 
 	fout.close();
 	return next_move;
