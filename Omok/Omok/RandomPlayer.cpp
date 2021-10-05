@@ -1,7 +1,6 @@
 ﻿#include "RandomPlayer.h"
 
-Move RandomPlayer::GetNextMove(const Omok& omok)
-{
+Move RandomPlayer::GetNextMove(const Omok& omok) {
 	// 시드값을 얻기 위한 random_device 생성
 	std::random_device rd;
 	// random_device 를 통해 난수 생성 엔진을 초기화
@@ -10,7 +9,7 @@ Move RandomPlayer::GetNextMove(const Omok& omok)
 	std::uniform_int_distribution<int> dis(0, omok.GetSize() - 1);
 	uint x = dis(gen);
 	uint y = dis(gen);
-	while (!omok.IsValid(x, y)||!omok.IsEmpty(x,y)) {
+	while (!omok.IsValid(x, y) || !omok.IsEmpty(x, y)) {
 		x = dis(gen);
 		y = dis(gen);
 	}

@@ -14,8 +14,7 @@ public:
 		if (ai_turn == Turn::Black) {
 			players_[1] = new AiPlayer(Turn::Black, 1 / sqrt(2));
 			players_[2] = new UserPlayer(Turn::White);
-		}
-		else {
+		} else {
 			players_[1] = new UserPlayer(Turn::Black);
 			players_[2] = new AiPlayer(Turn::White, 1 / sqrt(2));
 		}

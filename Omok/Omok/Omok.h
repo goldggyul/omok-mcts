@@ -42,7 +42,7 @@ public:
 
 	// 어느 차례든 게임이 끝나는지
 	bool IsGameOver();
-	
+
 	uint GetSize() const {
 		return size_;
 	}
@@ -63,14 +63,14 @@ public:
 	const std::string GetTurnCharacter(Turn turn) const {
 		switch (turn) {
 		case Turn::Black:
-			return "○";
-		case Turn::White:
 			return "●";
+		case Turn::White:
+			return "○";
 		default:
 			return " ";
 		}
 	}
-	const std::string GetTurnName(Turn turn) const{
+	const std::string GetTurnName(Turn turn) const {
 		switch (turn) {
 		case Turn::Black:
 			return "black";

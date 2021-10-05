@@ -3,7 +3,7 @@
 class Score {
 public:
 	Score() {}
-	Score(int none_, int black_, int white_) :none_(none_), black_(black_), white_(white_) {}
+	Score(int none, int black, int white) :none_(none), black_(black), white_(white) {}
 	Score(const Score& other) {
 		none_ = other.none_;
 		black_ = other.black_;

@@ -9,6 +9,9 @@
 #include "Omok.h"
 #include "Score.h"
 
+// for debugging
+#include <fstream>
+
 class MonteCarloNode {
 public:
 	MonteCarloNode(const Omok& omok, Move move, double exploration_parameter, MonteCarloNode* parent)
@@ -42,6 +45,7 @@ public:
 	Score RolloutLeafChild();
 	Score RandomRollout(uint cnt);
 	bool IsGameOver();
+	bool IsEnoughSearch() const;
 	void UpdateScore(const Score& score);
 	void AddChildren();
 	std::vector<Move> GetPossibleMoves(const Omok& board, Turn turn);
@@ -52,6 +56,9 @@ public:
 	void MergeRootAndChild(MonteCarloNode* other);
 	Move SelectBestMove() const;
 	uint CalculateEvaluation() const;
+
+	// for debugging
+	void PrintInfo(std::ofstream& fout) const;
 
 private:
 	Omok omok_;

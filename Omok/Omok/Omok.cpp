@@ -14,13 +14,13 @@ Turn** Omok::GetBoardArray() {
 }
 
 bool Omok::IsGameOver() {
-	return IsGameOver(Turn::Black, 5)||IsGameOver(Turn::White,5);
+	return IsGameOver(Turn::Black, 5) || IsGameOver(Turn::White, 5);
 }
 
 bool Omok::IsGameOver(Turn turn, uint max_cnt) {
 	for (uint i = 0; i < size_; i++) {
 		for (uint j = 0; j < size_; j++) {
-			Move move( turn, i, j );
+			Move move(turn, i, j);
 			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
 			if (IsRightCompleted(move, max_cnt) || IsDownCompleted(move, max_cnt) || IsDownDiagonalCompleted(move, max_cnt) || IsUpDiagonalCompleted(move, max_cnt)) {
 				result_ = turn;
@@ -43,17 +43,17 @@ void Omok::PutNextMove(const Move& next_move) {
 
 bool Omok::IsRightCompleted(Move cur_move, uint max_cnt) const {
 	// dm: 변화량. 우측 확인하므로 dx==0, dy==1
-	Move dm(cur_move.turn,0,1);
+	Move dm(cur_move.turn, 0, 1);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
 bool Omok::IsDownCompleted(Move cur_move, uint max_cnt) const {
-	Move dm(cur_move.turn,1,0);
+	Move dm(cur_move.turn, 1, 0);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
 bool Omok::IsDownDiagonalCompleted(Move cur_move, uint max_cnt) const {
-	Move dm(cur_move.turn,1,1 );
+	Move dm(cur_move.turn, 1, 1);
 	return IsCompleted(cur_move, dm, 0, max_cnt);
 }
 
@@ -74,8 +74,7 @@ bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) 
 		cur_move.x += dm.x;
 		cur_move.y += dm.y;
 		return IsCompleted(cur_move, dm, count + 1, max_cnt);
-	}
-	else {
+	} else {
 		return false;
 	}
 }

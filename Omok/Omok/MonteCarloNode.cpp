@@ -1,9 +1,8 @@
 ﻿#include "MonteCarloNode.h"
 
 // 루트 노드에서 호출
-// 자식 노드들 메모리 해제하고 마지막으로 자신 해체
-void MonteCarloNode::FreeTreeNode()
-{
+// 자식 노드들 메모리 해제하고 마지막으로 자신 해제
+void MonteCarloNode::FreeTreeNode() {
 	RecursiveFreeNode();
 	delete this;
 }
@@ -11,8 +10,7 @@ void MonteCarloNode::RecursiveFreeNode() {
 	for (auto* child : children_) {
 		if (child->IsLeafNode()) {
 			delete child;
-		}
-		else {
+		} else {
 			child->RecursiveFreeNode();
 			delete child;
 		}
@@ -63,14 +61,13 @@ Score MonteCarloNode::Rollout() {
 
 Score MonteCarloNode::RolloutLeafChild() {
 	Score total_score;
-	
+
 	// future이용, 병렬로 모든 LeafChild를 rollout 후에 결과를 모아서 score 업데이트
 	std::vector<std::future<Score>> futures;
 	for (MonteCarloNode* node : children_) {
 		if (node->IsLeafNode()) {
 			futures.push_back(std::async(&MonteCarloNode::Rollout, node));
-		}
-		else {
+		} else {
 			total_score += node->RolloutLeafChild();
 		}
 	}
@@ -82,7 +79,7 @@ Score MonteCarloNode::RolloutLeafChild() {
 	return total_score;
 }
 
-// cnt만큼의 child를 랜덤으로 선택하여 rollout
+// 인자만큼의 child를 랜덤으로 선택하여 rollout
 Score MonteCarloNode::RandomRollout(uint child_cnt) {
 	if (children_.size() == 0) {
 		return Score();
@@ -112,6 +109,21 @@ Score MonteCarloNode::RandomRollout(uint child_cnt) {
 
 bool MonteCarloNode::IsGameOver() {
 	return omok_.IsGameOver();
+}
+
+bool MonteCarloNode::IsEnoughSearch() const {
+	// 8쓰레드 기준 루트 최소 120,000번 방문하도록
+	// 1쓰레드는 15,000번 방문
+	/*if (visit_cnt_ > 15000) { 
+		return true;
+	}*/
+
+	// 8쓰레드 기준 루트 최소 100,000번 방문하도록
+	// 1쓰레드는 12,500번 방문
+	if (visit_cnt_ > 12500) {
+		return true;
+	}
+	return false;
 }
 
 void MonteCarloNode::UpdateScore(const Score& score) {
@@ -232,4 +244,10 @@ Move MonteCarloNode::SelectBestMove() const {
 
 uint MonteCarloNode::CalculateEvaluation() const {
 	return visit_cnt_;
+}
+
+// for debugging
+void MonteCarloNode::PrintInfo(std::ofstream& fout) const {
+	fout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|"  << std::endl;
+	std::cout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|" << std::endl;
 }

@@ -14,7 +14,6 @@ void OmokManager::Play() {
 	omok_.PrintBoard();
 }
 
-Turn OmokManager::GetResult() const
-{
+Turn OmokManager::GetResult() const {
 	return omok_.GetResult();
 }

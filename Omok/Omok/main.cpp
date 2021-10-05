@@ -2,18 +2,16 @@
 #include "OmokManager.h"
 
 int main() {
-	uint size=12;
+	uint size = 12;
 	Turn ai_turn = Turn::Black;
 
 	std::string user_input;
-	std::cout << "size? ";
 	std::cin >> size;
-	std::cout << "my turn? ";
 	std::cin >> user_input;
 
 	if (user_input == "black") {
 		ai_turn = Turn::Black;
-	} else if (user_input == "white"){
+	} else if (user_input == "white") {
 		ai_turn = Turn::White;
 	}
 
@@ -23,11 +21,9 @@ int main() {
 	Turn turn = omok_manager.GetResult();
 	if (turn == ai_turn) {
 		std::cout << "win" << std::endl;
-	}
-	else if (turn == Turn::None) {
+	} else if (turn == Turn::None) {
 		std::cout << "draw" << std::endl;
-	}
-	else {
+	} else {
 		std::cout << "lose" << std::endl;
 	}
 
