@@ -113,11 +113,22 @@ Move AiPlayer::GetNextMoveWithPrint(const Omok& omok) {
 	fout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
 	std::cout << "> 트리 탐색: " << elapsed << "ms 경과" << std::endl;
 
+	// 각 트리 출력
+	std::cout << "==========트리===========" << std::endl;
+	fout << "==========트리===========" << std::endl;
+	for (auto tree : *copy_trees) {
+		tree->PrintInfo(fout);
+	}
+
 	// 나머지 트리들의 점수를 첫번째 트리에 합침
 	for (uint i = 1; i < tree_cnt; i++) {
 		first_tree->MergeTreeValues(copy_trees->at(i));
 	}
+
+	std::cout << "==========트리 합===========" << std::endl;
+	fout << "==========트리 합===========" << std::endl;
 	first_tree->PrintInfo(fout);
+
 	Move next_move = first_tree->GetBestMove();
 
 	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
