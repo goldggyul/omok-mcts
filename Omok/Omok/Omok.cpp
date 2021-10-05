@@ -92,7 +92,7 @@ void Omok::PrintBoard() const {
 	for (uint i = 0; i < size_; i++) {
 		std::cout << std::setw(3) << i;
 		for (uint j = 0; j < size_; j++) {
-			std::cout << std::setw(3) << GetTurnCharacter(board_[i][j]);
+			std::cout << std::setw(3) << GetTurnCharacter(board_[j][i]);
 		}
 		std::cout << std::endl;
 	}

@@ -31,8 +31,7 @@ void MonteCarloTree::Mcts() {
 		auto cur_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - init_end).count();
 		if (root_->IsEnoughSearch()) {
 			break;
-		}
-		if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10초) 제한
+		} else if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10초) 제한
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
@@ -43,7 +42,6 @@ void MonteCarloTree::Mcts() {
 				cur_node->AddChildren();
 				if (cur_node->IsLeafNode()) {
 					score = cur_node->Rollout();
-				} else {
 					// 지정 개수의 child만 랜덤으로 골라서 rollout
 					int child_cnt = 4;
 					score = cur_node->RandomRollout(child_cnt);
@@ -63,25 +61,4 @@ Move MonteCarloTree::GetBestMove() {
 
 void MonteCarloTree::MergeTreeValues(MonteCarloTree* other) {
 	root_->MergeRootAndChild(other->root_);
-}
-
-void MonteCarloTree::PrintInfo(std::ofstream& fout) const {
-	fout << "------------------------------------------------------" << std::endl;
-	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
-	fout << "------------------------------------------------------" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
-	std::cout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
-
-	uint cnt = 1;
-	for (const auto* child : root_->GetChildren()) {
-		fout << "|" << std::setw(6) << cnt;
-		std::cout << "|" << std::setw(6) << cnt;
-		cnt++;
-		fout << "|";
-		std::cout << "|";
-		child->PrintInfo(fout);
-	}
-	fout << "------------------------------------------------------" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
 }

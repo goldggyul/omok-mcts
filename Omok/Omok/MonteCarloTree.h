@@ -22,9 +22,6 @@ public:
 	Move GetBestMove();
 	void MergeTreeValues(MonteCarloTree* other);
 
-	// for debugging
-	void PrintInfo(std::ofstream& fout) const;
-
 private:
 	// Recursive: 각 노드마다 child를 더해줌
 	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth);

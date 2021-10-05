@@ -82,7 +82,7 @@ Score MonteCarloNode::RolloutLeafChild() {
 // 인자만큼의 child를 랜덤으로 선택하여 rollout
 Score MonteCarloNode::RandomRollout(uint child_cnt) {
 	if (children_.size() == 0) {
-		return Score();
+		return Rollout();
 	}
 
 	std::vector<uint> random_idx(children_.size());
@@ -112,12 +112,6 @@ bool MonteCarloNode::IsGameOver() {
 }
 
 bool MonteCarloNode::IsEnoughSearch() const {
-	// 8쓰레드 기준 루트 최소 120,000번 방문하도록
-	// 1쓰레드는 15,000번 방문
-	/*if (visit_cnt_ > 15000) { 
-		return true;
-	}*/
-
 	// 8쓰레드 기준 루트 최소 100,000번 방문하도록
 	// 1쓰레드는 12,500번 방문
 	if (visit_cnt_ > 12500) {
@@ -244,10 +238,4 @@ Move MonteCarloNode::SelectBestMove() const {
 
 uint MonteCarloNode::CalculateEvaluation() const {
 	return visit_cnt_;
-}
-
-// for debugging
-void MonteCarloNode::PrintInfo(std::ofstream& fout) const {
-	fout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|"  << std::endl;
-	std::cout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|" << std::endl;
 }
