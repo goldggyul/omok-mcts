@@ -41,9 +41,7 @@ void MonteCarloTree::Mcts() {
 				score = cur_node->Rollout();
 			} else {
 				cur_node->AddChildren();
-				// 지정 개수의 child만 랜덤으로 골라서 rollout
-				const int child_cnt = 1;
-				score = cur_node->RandomRollout(child_cnt);
+				score = cur_node->RandomRollout();
 			}
 			cur_node->Backpropagation(score);
 			cur_node = root_;

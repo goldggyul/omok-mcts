@@ -43,7 +43,7 @@ public:
 	}
 	Score Rollout();
 	Score RolloutLeafChild();
-	Score RandomRollout(uint cnt);
+	Score RandomRollout();
 	bool IsGameOver();
 	bool IsEnoughSearch() const;
 	void UpdateScore(const Score& score);

@@ -79,48 +79,15 @@ Score MonteCarloNode::RolloutLeafChild() {
 	return total_score;
 }
 
-// 인자만큼의 child를 랜덤으로 선택하여 rollout
-Score MonteCarloNode::RandomRollout(uint child_cnt) {
+Score MonteCarloNode::RandomRollout() {
 	if (children_.size() == 0) {
 		return Rollout();
-	} else if (child_cnt == 1) {
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dis(0, children_.size() - 1);
-		uint index = dis(gen);
-		return children_[index]->Rollout();
-	}
-
-	std::vector<uint> random_idx(children_.size());
-	for (uint i = 0; i < children_.size(); i++) {
-		random_idx[i] = i;
-	}
+	} 
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::shuffle(random_idx.begin(), random_idx.end(), gen);
-
-	std::vector<std::future<Score>> futures;
-	// 랜덤으로 child 선택 cnt개 선택
-	uint cnt = 0;
-	uint i = 0;
-	while (cnt < child_cnt) {
-		if (i == children_.size()) {
-			i = 0;
-		}
-		futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
-		i++;
-		cnt++;
-	}
-	//for (uint i = 0; i < child_cnt; i++) {
-	//	futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
-	//}
-	Score total_score;
-	for (auto& e : futures) {
-		total_score += e.get();
-	}
-	// 자신의 값 업데이트
-	UpdateScore(total_score);
-	return total_score;
+	std::uniform_int_distribution<int> dis(0, children_.size() - 1);
+	uint index = dis(gen);
+	return children_[index]->Rollout();
 }
 
 bool MonteCarloNode::IsGameOver() {
