@@ -9,5 +9,5 @@ Move UserPlayer::GetNextMove(const Omok& omok) {
 		std::cin.ignore(LLONG_MAX, '\n');
 		std::cin >> x >> y;
 	}
-	return 	Move(turn_, x, y);
+	return Move(turn_, x, y);
 }

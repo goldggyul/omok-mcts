@@ -3,7 +3,7 @@
 
 class Player {
 public:
-	Player(Turn turn_) : turn_(turn_) {}
+	Player(Turn turn) : turn_(turn) {}
 	virtual ~Player() = default;
 
 	virtual Move GetNextMove(const Omok& omok) = 0;

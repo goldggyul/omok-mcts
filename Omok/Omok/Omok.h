@@ -20,27 +20,28 @@ struct Move {
 
 class Omok {
 public:
-	Omok() :size_(0), move_count_(0), board_(nullptr), result_(Turn::None) {}
+	Omok() :size_(0), move_count_(0), game_board_(nullptr), result_(Turn::None) {}
+	// 새로운 노드를 만들 때 사용되는 복사 생성자
 	Omok(const Omok& other) :size_(other.size_), move_count_(other.move_count_) {
-		board_ = GetBoardArray();
+		game_board_ = GetBoardArray();
 		for (uint i = 0; i < size_; i++) {
 			for (uint j = 0; j < size_; j++) {
-				board_[i][j] = other.board_[i][j];
+				game_board_[i][j] = other.game_board_[i][j];
 			}
 		}
 	}
 	~Omok() {
-		if (board_ != nullptr) {
+		if (game_board_ != nullptr) {
 			for (uint i = 0; i < size_; i++) {
-				delete[] board_[i];
+				delete[] game_board_[i];
 			}
-			delete[] board_;
+			delete[] game_board_;
 		}
 	}
 	void InitGameBoard(uint size);
 	void PutNextMove(const Move& next_move);
 
-	// 어느 차례든 게임이 끝나는지
+	// 게임이 끝난다면 결과를 result_에 저장 
 	bool IsGameOver();
 
 	uint GetSize() const {
@@ -50,10 +51,10 @@ public:
 		return move_count_;
 	}
 	bool IsValid(uint x, uint y) const {
-		return x < size_&& y < size_;
+		return x < size_ && y < size_;
 	}
 	bool IsEmpty(uint x, uint y) const {
-		return board_[x][y] == Turn::None;
+		return game_board_[x][y] == Turn::None;
 	}
 	Turn GetResult() const {
 		return result_;
@@ -93,6 +94,6 @@ private:
 
 	uint size_;
 	uint move_count_;
-	Turn** board_;
+	Turn** game_board_;
 	Turn result_;
 };

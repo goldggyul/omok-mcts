@@ -29,20 +29,23 @@ void MonteCarloTree::Mcts() {
 	while (true) {
 		auto end = std::chrono::steady_clock::now();
 		auto cur_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - init_end).count();
+
+		// 충분히 탐색했거나 timeout 시에 종료
 		if (root_->IsEnoughSearch()) {
 			break;
-		} else if (cur_elapsed > 5000 - init_elapsed - 30) { // 5000ms(5초) 제한
+		}
+		if (cur_elapsed > TimeLimit - init_elapsed) {
 			break;
 		}
+
+		// MCTS 로직
 		if (cur_node->IsLeafNode()) {
 			Score score;
 			if (cur_node->IsFirstVisit()) {
 				score = cur_node->Rollout();
 			} else {
 				cur_node->AddChildren();
-				// 지정 개수의 child만 랜덤으로 골라서 rollout
-				int child_cnt = 4;
-				score = cur_node->RandomRollout(child_cnt);
+				score = cur_node->RandomRollout();
 			}
 			cur_node->Backpropagation(score);
 			cur_node = root_;
@@ -52,10 +55,14 @@ void MonteCarloTree::Mcts() {
 	}
 }
 
-Move MonteCarloTree::GetBestMove() {
-	return root_->SelectBestMove();
+uint MonteCarloTree::GetBestChildIndex() const {
+	return root_->SelectBestChild();
 }
 
 void MonteCarloTree::MergeTreeValues(MonteCarloTree* other) {
-	root_->MergeRootAndChild(other->root_);
+	root_->MergeChildrenValues(other->root_);
+}
+
+Move MonteCarloTree::GetMostVotedMove(const std::vector<uint>& votes) const {
+	return root_->GetMostVotedMove(votes);
 }

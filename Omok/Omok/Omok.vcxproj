@@ -154,7 +154,6 @@
     <ClInclude Include="MonteCarloTree.h" />
     <ClInclude Include="OmokManager.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="RandomPlayer.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="UserPlayer.h" />
   </ItemGroup>

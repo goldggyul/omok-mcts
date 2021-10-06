@@ -2,11 +2,12 @@
 
 void Omok::InitGameBoard(uint size) {
 	size_ = size;
-	board_ = GetBoardArray();
+	game_board_ = GetBoardArray();
 }
 
+// 메모리 할당한 것은 소멸자에서 해제
 Turn** Omok::GetBoardArray() {
-	Turn** arr = new Turn * [size_];
+	Turn** arr = new Turn* [size_];
 	for (uint i = 0; i < size_; i++) {
 		arr[i] = new Turn[size_]();
 	}
@@ -21,7 +22,7 @@ bool Omok::IsGameOver(Turn turn, uint max_cnt) {
 	for (uint i = 0; i < size_; i++) {
 		for (uint j = 0; j < size_; j++) {
 			Move move(turn, i, j);
-			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향 확인
+			// 각 칸마다 오른쪽 방향/아래 방향/오른쪽 아래 대각선 방향/오른쪽 위 대각선 방향 확인
 			if (IsRightCompleted(move, max_cnt) || IsDownCompleted(move, max_cnt) || IsDownDiagonalCompleted(move, max_cnt) || IsUpDiagonalCompleted(move, max_cnt)) {
 				result_ = turn;
 				return true;
@@ -38,7 +39,7 @@ bool Omok::IsGameOver(Turn turn, uint max_cnt) {
 
 void Omok::PutNextMove(const Move& next_move) {
 	move_count_++;
-	board_[next_move.x][next_move.y] = next_move.turn;
+	game_board_[next_move.x][next_move.y] = next_move.turn;
 }
 
 bool Omok::IsRightCompleted(Move cur_move, uint max_cnt) const {
@@ -70,7 +71,7 @@ bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) 
 	if (!IsValid(cur_move.x, cur_move.y)) {
 		return false;
 	}
-	if (board_[cur_move.x][cur_move.y] == cur_move.turn) {
+	if (game_board_[cur_move.x][cur_move.y] == cur_move.turn) {
 		cur_move.x += dm.x;
 		cur_move.y += dm.y;
 		return IsCompleted(cur_move, dm, count + 1, max_cnt);
@@ -92,7 +93,7 @@ void Omok::PrintBoard() const {
 	for (uint i = 0; i < size_; i++) {
 		std::cout << std::setw(3) << i;
 		for (uint j = 0; j < size_; j++) {
-			std::cout << std::setw(3) << GetTurnCharacter(board_[j][i]);
+			std::cout << std::setw(3) << GetTurnCharacter(game_board_[j][i]);
 		}
 		std::cout << std::endl;
 	}

@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "MonteCarloNode.h"
 
+// ms 단위. 시뮬레이션 제한 시간
+const uint TimeLimit = 3700;
+
 class MonteCarloTree {
 public:
 	MonteCarloTree(const Omok& omok, Turn ai_turn, double exploration_parameter)
@@ -19,11 +22,11 @@ public:
 
 	void AddNodesUntilMaxDepth(uint max_depth);
 	void Mcts();
-	Move GetBestMove();
+	uint GetBestChildIndex() const;
 	void MergeTreeValues(MonteCarloTree* other);
+	Move GetMostVotedMove(const std::vector<uint>& votes) const;
 
 private:
-	// Recursive: 각 노드마다 child를 더해줌
 	void RecursiveAddNodesUntilMaxDepth(MonteCarloNode* node, uint cur_depth, uint max_depth);
 
 	MonteCarloNode* root_;

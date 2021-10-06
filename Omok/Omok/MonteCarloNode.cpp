@@ -17,7 +17,8 @@ void MonteCarloNode::RecursiveFreeNode() {
 	}
 }
 
-// 루트 노드에서 호출, MCTS 시작 전 부분 트리를 만듦
+// 루트 노드에서 호출
+//MCTS 시작 전 부분 트리를 만듦
 MonteCarloNode* MonteCarloNode::MakeCopyOfTree() {
 	MonteCarloNode* copied_root = new MonteCarloNode(omok_, move_, exploration_parameter_, nullptr);
 	CopyChildrenToOtherNode(copied_root);
@@ -79,33 +80,16 @@ Score MonteCarloNode::RolloutLeafChild() {
 	return total_score;
 }
 
-// 인자만큼의 child를 랜덤으로 선택하여 rollout
-Score MonteCarloNode::RandomRollout(uint child_cnt) {
+// 랜덤으로 child 하나 선택하여 rollout
+Score MonteCarloNode::RandomRollout() {
 	if (children_.size() == 0) {
 		return Rollout();
-	}
-
-	std::vector<uint> random_idx(children_.size());
-	for (uint i = 0; i < children_.size(); i++) {
-		random_idx[i] = i;
-	}
+	} 
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::shuffle(random_idx.begin(), random_idx.end(), gen);
-
-	std::vector<std::future<Score>> futures;
-	// 랜덤으로 child 선택 cnt개 선택
-	for (uint i = 0; i < child_cnt; i++) {
-		futures.push_back(std::async(&MonteCarloNode::Rollout, children_.at(i)));
-	}
-	Score total_score;
-	for (auto& e : futures) {
-		total_score += e.get();
-	}
-
-	// 자신의 값 업데이트
-	UpdateScore(total_score);
-	return total_score;
+	std::uniform_int_distribution<int> dis(0, children_.size() - 1);
+	uint index = dis(gen);
+	return children_[index]->Rollout();
 }
 
 bool MonteCarloNode::IsGameOver() {
@@ -113,15 +97,12 @@ bool MonteCarloNode::IsGameOver() {
 }
 
 bool MonteCarloNode::IsEnoughSearch() const {
-	uint max_visit = 10000, min_visit = 600;
-
-	if (visit_cnt_ > max_visit) {
+	if (visit_cnt_ > MaxVisit) {
 		return true;
-	} else if (visit_cnt_ < min_visit) {
+	} else if (visit_cnt_ < MinVisit) {
 		return false;
 	}
-
-	// 방문 횟수 1등과 2등이 최소 방문수 이상 차이나면 충분히 탐색한 것으로 판단
+	// 방문 횟수 1등과 2등이 MinVisit 이상 차이나면 충분히 탐색한 것으로 판단
 	MonteCarloNode* first_child = nullptr;
 	MonteCarloNode* second_child = nullptr;
 	for (MonteCarloNode* child : children_) {
@@ -134,14 +115,14 @@ bool MonteCarloNode::IsEnoughSearch() const {
 	}
 	if (!first_child || !second_child) {
 		return false;
-	} else if (first_child->visit_cnt_ > second_child->visit_cnt_ + min_visit) {
+	} else if (first_child->visit_cnt_ > second_child->visit_cnt_ + MinVisit) {
 		return true;
 	}
-
 	return false;
 }
 
 void MonteCarloNode::UpdateScore(const Score& score) {
+	// reward는 이겼을 시 1, 그 외 0
 	uint reward = score.GetReward(move_.turn);
 	reward_sum_ += reward;
 	visit_cnt_ += score.GetVisitCnt();
@@ -152,13 +133,14 @@ void MonteCarloNode::AddChildren() {
 	if (IsGameOver()) {
 		return;
 	}
+
 	Turn next_turn;
-	// 현재 root 노드인 경우
-	if (parent_ == nullptr) {
+	if (parent_ == nullptr) { // 현재 root 노드인 경우는 이전 턴이 없었으므로 현재 턴이 저장되어 있음
 		next_turn = move_.turn;
 	} else {
 		next_turn = (move_.turn == Turn::Black) ? Turn::White : Turn::Black;
 	}
+
 	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
 	for (const Move& move : possible_moves) {
 		MonteCarloNode* child = new MonteCarloNode(omok_, move, exploration_parameter_, this);
@@ -167,27 +149,28 @@ void MonteCarloNode::AddChildren() {
 	}
 }
 
-// 다른 수가 놓여져있지 않다면 무조건 리턴. 즉, 게임 종료 여부를 체크하지 않음
-std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn) {
+// 어떤 수를 둬서 게임이 종료되는지 여부와 상관 없이 현재 놓을 수 있는 수를 모두 리턴
+std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& omok, Turn turn) const {
 	std::vector<Move> possible_moves;
 
-	uint size = board.GetSize();
+	uint size = omok.GetSize();
 	bool** visited = new bool* [size];
 	for (uint i = 0; i < size; i++) {
 		visited[i] = new bool[size]();
 	}
 
+	// 한칸 주변
 	// 오른쪽 부터 시계방향으로 
 	int dx[8] = { 0,1,1,1,0,-1,-1,-1 };
 	int dy[8] = { 1,1,0,-1,-1,-1,0,1 };
 	for (uint i = 0; i < size; i++) {
 		for (uint j = 0; j < size; j++) {
-			if (!board.IsEmpty(i, j)) {
+			if (!omok.IsEmpty(i, j)) {
 				// 8방향 살펴봄
 				for (uint d = 0; d < 8; d++) {
 					uint nx = i + dx[d];
 					uint ny = j + dy[d];
-					if (nx < size && ny < size && board.IsEmpty(nx, ny) && !visited[nx][ny]) {
+					if (nx < size && ny < size && omok.IsEmpty(nx, ny) && !visited[nx][ny]) {
 						visited[nx][ny] = true;
 						possible_moves.push_back(Move(turn, nx, ny));
 					}
@@ -195,11 +178,16 @@ std::vector<Move> MonteCarloNode::GetPossibleMoves(const Omok& board, Turn turn)
 			}
 		}
 	}
+	
+	for (uint i = 0; i < size; i++) {
+		delete[] visited[i];
+	}
+	delete[] visited;
 	return possible_moves;
 }
 
 void MonteCarloNode::Backpropagation(const Score& score) {
-	// 루트까지 score 업데이트, 맨 처음 호출한 노드는 제외
+	// 루트까지 score 업데이트, 맨 처음 호출한 노드는 제외(rollout 시에 호출 노드의 점수 업데이트 됨)
 	MonteCarloNode* cur = this->parent_;
 	while (cur != nullptr) {
 		cur->UpdateScore(score);
@@ -230,7 +218,8 @@ double MonteCarloNode::CalculateUct() const {
 	return reward_mean + exploration_parameter_ * exploration_term;
 }
 
-void MonteCarloNode::MergeRootAndChild(MonteCarloNode* other) {
+// 병렬로 계산한 다른 트리의 children 계산 결과를 합침
+void MonteCarloNode::MergeChildrenValues(MonteCarloNode* other) {
 	reward_sum_ += other->reward_sum_;
 	visit_cnt_ += other->visit_cnt_;
 	for (uint i = 0; i < children_.size(); i++) {
@@ -239,24 +228,47 @@ void MonteCarloNode::MergeRootAndChild(MonteCarloNode* other) {
 	}
 }
 
-Move MonteCarloNode::SelectBestMove() const {
-	uint best_eval = 0;
-	MonteCarloNode* best_children = nullptr;
-
-	for (MonteCarloNode* child : children_) {
-		uint eval = child->CalculateEvaluation();
-		if (best_children == nullptr || eval > best_eval) {
+// best child 선택하여 배열의 인덱스를 리턴
+// child 생성하는 순서가 항상 같으므로 인덱스가 모두 같음
+// 따라서 인덱스가 같다면 같은 수를 두는 경우임
+uint MonteCarloNode::SelectBestChild() const {
+	uint best_index = 0;
+	uint best_eval = children_[best_index]->CalculateEvaluation();
+	for (uint i = 1; i < children_.size(); i++) {
+		uint eval = children_[i]->CalculateEvaluation();
+		if (eval > best_eval) {
+			best_index = i;
 			best_eval = eval;
-			best_children = child;
 		}
 	}
-
-	if (best_children == nullptr) {
-		return Move(Turn::None, 0, 0);
-	}
-	return best_children->move_;
+	return best_index;
 }
 
+// Child 평가는 방문 수
 uint MonteCarloNode::CalculateEvaluation() const {
-	return visit_cnt_;
+	return visit_cnt_; 
+}
+
+// 최종 수를 선택할 때, 병렬 트리에서 가장 선택 많이 받은 수를 둠
+Move MonteCarloNode::GetMostVotedMove(const std::vector<uint>& votes) const {
+	// 투표 받은 횟수 세기
+	std::vector<uint> counter(children_.size(), 0);
+	for (uint e : votes) {
+		counter[e]++;
+	}
+	// 가장 많이 뽑힌 인덱스 구하기 
+	uint most_frequent_idx = 0;
+	uint visit = children_[0]->visit_cnt_;
+	for (uint i = 0; i < counter.size(); i++) {
+		if (counter[i] > counter[most_frequent_idx]) {
+			most_frequent_idx = i;
+		} else if (counter[i] == counter[most_frequent_idx]) {
+			// 투표수가 같다면, 방문을 더 많이 한 수를 선택함
+			if (children_[i]->visit_cnt_ > visit) {
+				visit = children_[i]->visit_cnt_;
+				most_frequent_idx = i;
+			}
+		}
+	}
+	return children_[most_frequent_idx]->move_;
 }

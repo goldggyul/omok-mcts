@@ -9,7 +9,7 @@ public:
 		black_ = other.black_;
 		white_ = other.white_;
 	}
-	Score(Turn turn) {
+	Score(const Turn& turn) {
 		switch (turn) {
 		case Turn::Black:
 			black_ = 1;
@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	int GetReward(Turn turn)  const {
+	int GetReward(const Turn& turn)  const {
 		switch (turn) {
 		case Turn::Black:
 			return black_;

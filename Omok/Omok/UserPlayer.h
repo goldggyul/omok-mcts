@@ -3,7 +3,7 @@
 
 class UserPlayer : public Player {
 public:
-	UserPlayer(Turn turn_) :Player(turn_) {}
+	UserPlayer(Turn turn) :Player(turn) {}
 	virtual Move GetNextMove(const Omok& omok);
 };
 
