@@ -11,12 +11,11 @@ public:
 	AiPlayer(Turn turn_, double exploration_parameter)
 		:Player(turn_), exploration_parameter_(exploration_parameter) {
 		// for debugging
-		std::ofstream fout("mcts_info.txt");
+		std::ofstream fout("root2_mcts_info.txt");
 		fout.close();
 	}
 	Move GetFirstMove(uint size);
 	virtual Move GetNextMove(const Omok& omok);
-	Move GetNextMoveWithoutPrint(const Omok& omok);
 	Move GetNextMoveWithPrint(const Omok& omok);
 
 private:

@@ -32,7 +32,7 @@ void MonteCarloTree::Mcts() {
 		if (root_->IsEnoughSearch()) {
 			break;
 		}
-		if (cur_elapsed > 10000 - init_elapsed - 30) { // 10000ms(10초) 제한
+		if (cur_elapsed > 3700 - init_elapsed - 30) { // 3700ms 제한
 			break;
 		}
 		if (cur_node->IsLeafNode()) {
@@ -41,13 +41,9 @@ void MonteCarloTree::Mcts() {
 				score = cur_node->Rollout();
 			} else {
 				cur_node->AddChildren();
-				if (cur_node->IsLeafNode()) {
-					score = cur_node->Rollout();
-				} else {
-					// 지정 개수의 child만 랜덤으로 골라서 rollout
-					int child_cnt = 4;
-					score = cur_node->RandomRollout(child_cnt);
-				}
+				// 지정 개수의 child만 랜덤으로 골라서 rollout
+				const int child_cnt = 1;
+				score = cur_node->RandomRollout(child_cnt);
 			}
 			cur_node->Backpropagation(score);
 			cur_node = root_;
@@ -57,31 +53,44 @@ void MonteCarloTree::Mcts() {
 	}
 }
 
-Move MonteCarloTree::GetBestMove() {
-	return root_->SelectBestMove();
+uint MonteCarloTree::GetBestChildIndex() const {
+	return root_->SelectBestChild();
 }
 
 void MonteCarloTree::MergeTreeValues(MonteCarloTree* other) {
 	root_->MergeRootAndChild(other->root_);
 }
 
+Move MonteCarloTree::GetMostVotedMove(const std::vector<uint>& votes) const {
+	return root_->GetMostVotedMove(votes);
+}
+
+void MonteCarloTree::PrintChildren(std::ofstream& fout) const {
+	for (auto child : root_->GetChildren()) {
+		child->PrintBoard(fout);
+	}
+}
+
 void MonteCarloTree::PrintInfo(std::ofstream& fout) const {
+
+
 	fout << "------------------------------------------------------" << std::endl;
 	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
 	fout << "------------------------------------------------------" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
-	std::cout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
+	//std::cout << "------------------------------------------------------" << std::endl;
+	//std::cout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
+	//std::cout << "------------------------------------------------------" << std::endl;
 
 	uint cnt = 1;
+	std::cout.setf(std::ios::right);
 	for (const auto* child : root_->GetChildren()) {
 		fout << "|" << std::setw(6) << cnt;
-		std::cout << "|" << std::setw(6) << cnt;
+		//std::cout << "|" << std::setw(6) << cnt;
 		cnt++;
 		fout << "|";
-		std::cout << "|";
+		//std::cout << "|";
 		child->PrintInfo(fout);
 	}
 	fout << "------------------------------------------------------" << std::endl;
-	std::cout << "------------------------------------------------------" << std::endl;
+	//std::cout << "------------------------------------------------------" << std::endl;
 }

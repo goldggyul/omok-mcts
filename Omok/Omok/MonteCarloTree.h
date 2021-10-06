@@ -19,11 +19,12 @@ public:
 
 	void AddNodesUntilMaxDepth(uint max_depth);
 	void Mcts();
-	Move GetBestMove();
+	uint GetBestChildIndex() const;
 	void MergeTreeValues(MonteCarloTree* other);
-
+	Move GetMostVotedMove(const std::vector<uint>& votes) const;
 	// for debugging
 	void PrintInfo(std::ofstream& fout) const;
+	void PrintChildren(std::ofstream& fout) const;
 
 private:
 	// Recursive: 각 노드마다 child를 더해줌

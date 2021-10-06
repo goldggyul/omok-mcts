@@ -3,6 +3,9 @@
 #include <iostream>
 #include <iomanip>
 
+//for debugging
+#include <fstream>
+
 using uint = unsigned int;
 
 enum class Turn {
@@ -80,6 +83,9 @@ public:
 			return "none";
 		}
 	}
+
+	//for debugging
+	void PrintBoard(std::ofstream& fout) const;
 
 private:
 	Turn** GetBoardArray();

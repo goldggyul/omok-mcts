@@ -98,3 +98,23 @@ void Omok::PrintBoard() const {
 	}
 	std::cout << std::endl;
 }
+
+void Omok::PrintBoard(std::ofstream& fout) const {
+	fout << std::endl;
+	fout.setf(std::ios::left);
+
+	fout << "   ";
+	for (uint i = 0; i < size_; i++) {
+		fout << std::setw(3) << i;
+	}
+	fout << std::endl;
+
+	for (uint i = 0; i < size_; i++) {
+		fout << std::setw(3) << i;
+		for (uint j = 0; j < size_; j++) {
+			fout << std::setw(3) << GetTurnCharacter(board_[i][j]);
+		}
+		fout << std::endl;
+	}
+	fout << std::endl;
+}

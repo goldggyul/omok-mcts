@@ -21,8 +21,6 @@ int main() {
 	Turn turn = omok_manager.GetResult();
 	if (turn == ai_turn) {
 		std::cout << "win" << std::endl;
-	} else if (turn == Turn::None) {
-		std::cout << "draw" << std::endl;
 	} else {
 		std::cout << "lose" << std::endl;
 	}

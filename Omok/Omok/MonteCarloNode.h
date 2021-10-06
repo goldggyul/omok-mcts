@@ -54,11 +54,14 @@ public:
 	MonteCarloNode* SelectChildByUct();
 	double CalculateUct() const;
 	void MergeRootAndChild(MonteCarloNode* other);
-	Move SelectBestMove() const;
+	uint SelectBestChild() const;
 	uint CalculateEvaluation() const;
+	Move GetChildMove(uint index) const;
+	Move GetMostVotedMove(const std::vector<uint>& votes) const;
 
 	// for debugging
 	void PrintInfo(std::ofstream& fout) const;
+	void PrintBoard(std::ofstream& fout) const;
 
 private:
 	Omok omok_;
