@@ -17,8 +17,7 @@ Move AiPlayer::SearchTree(const Omok& omok) {
 	Tree* first_tree = GetPartialTree(omok, 1, exploration_parameter_);
 
 	// 트리의 개수, 각 트리를 병렬로 탐색 후에 결과를 합침
-	// 후에 여러 트리에서 가장 많이 선택한 것을 best로 선택하므로, 홀수여야함
-	uint tree_cnt = 11;
+	uint tree_cnt = 16;
 	if (tree_cnt % 2 == 0) {
 		tree_cnt++;
 	}

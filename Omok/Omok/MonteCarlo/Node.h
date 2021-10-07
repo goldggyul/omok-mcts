@@ -9,7 +9,7 @@
 
 // 충분히 탐색했는가 판단 기준
 const uint MaxVisit = 20000;
-const uint MinVisit = 200;
+const uint MinVisit = 150;
 
 class Node {
 public:

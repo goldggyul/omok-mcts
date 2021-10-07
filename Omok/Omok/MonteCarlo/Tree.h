@@ -2,7 +2,7 @@
 #include "Node.h"
 
 // ms 단위. 트리 탐색 제한 시간
-const uint TimeLimit = 4500;
+const uint TimeLimit = 5000;
 
 class Tree {
 public:
