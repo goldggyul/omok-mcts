@@ -153,7 +153,7 @@ void Node::AddChildren() {
 	}
 
 	std::vector<Move> possible_moves = GetPossibleMoves(omok_, next_turn);
-	for (const Move& move : possible_moves) {
+	for (Move move : possible_moves) {
 		Node* child = new Node(omok_, move, exploration_parameter_, this);
 		child->omok_.PutNextMove(move);
 		children_.push_back(child);

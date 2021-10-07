@@ -72,7 +72,7 @@ uint Tree::GetBestMoveIndex() const {
 
 void Tree::MergeTreesValues(std::vector<Tree*>* trees) {
 	// 나머지 트리들의 점수를 트리에 합침
-	for (const auto& tree : *trees) {
+	for (Tree* tree : *trees) {
 		if (tree == this) {
 			continue;
 		}

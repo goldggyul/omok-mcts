@@ -40,7 +40,7 @@ public:
 		}
 	}
 	void InitGameBoard(uint size);
-	void PutNextMove(const Move& next_move);
+	void PutNextMove(Move next_move);
 
 	// 게임이 끝난다면 결과를 result_에 저장 
 	bool IsGameOver();
@@ -91,7 +91,7 @@ private:
 	bool IsDownCompleted(Move cur_move, uint max_cnt) const;
 	bool IsDownDiagonalCompleted(Move cur_move, uint max_cnt) const;
 	bool IsUpDiagonalCompleted(Move cur_move, uint max_cnt) const;
-	bool IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) const;
+	bool IsCompleted(Move cur_move, Move dm, uint count, uint max_cnt) const;
 
 	uint size_;
 	uint move_count_;

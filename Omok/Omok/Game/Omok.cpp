@@ -37,7 +37,7 @@ bool Omok::IsGameOver(Turn turn, uint max_cnt) {
 	return false;
 }
 
-void Omok::PutNextMove(const Move& next_move) {
+void Omok::PutNextMove(Move next_move) {
 	move_count_++;
 	game_board_[next_move.x][next_move.y] = next_move.turn;
 }
@@ -64,7 +64,7 @@ bool Omok::IsUpDiagonalCompleted(Move cur_move, uint max_cnt) const {
 }
 
 // Recursive: dm씩 이동하면서 5개가 완성되었는지 확인
-bool Omok::IsCompleted(Move cur_move, const Move& dm, uint count, uint max_cnt) const {
+bool Omok::IsCompleted(Move cur_move, Move dm, uint count, uint max_cnt) const {
 	if (count == 5) {
 		return true;
 	}
