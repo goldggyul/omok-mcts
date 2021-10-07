@@ -1,4 +1,4 @@
-﻿#include "OmokManager.h"
+﻿#include "Game/OmokManager.h"
 
 int main() {
 	uint size = 12;

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Omok.h"
+#include "../Game/Omok.h"
 
 class Player {
 public:

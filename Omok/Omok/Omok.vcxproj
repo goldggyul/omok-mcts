@@ -139,23 +139,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AiPlayer.cpp" />
-    <ClCompile Include="MonteCarloNode.cpp" />
-    <ClCompile Include="Omok.cpp" />
+    <ClCompile Include="Game\Omok.cpp" />
+    <ClCompile Include="Game\OmokManager.cpp" />
+    <ClCompile Include="MonteCarlo\Node.cpp" />
+    <ClCompile Include="MonteCarlo\Tree.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MonteCarloTree.cpp" />
-    <ClCompile Include="OmokManager.cpp" />
-    <ClCompile Include="UserPlayer.cpp" />
+    <ClCompile Include="Player\AiPlayer.cpp" />
+    <ClCompile Include="Player\UserPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AiPlayer.h" />
-    <ClInclude Include="MonteCarloNode.h" />
-    <ClInclude Include="Omok.h" />
-    <ClInclude Include="MonteCarloTree.h" />
-    <ClInclude Include="OmokManager.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Score.h" />
-    <ClInclude Include="UserPlayer.h" />
+    <ClInclude Include="Game\Omok.h" />
+    <ClInclude Include="Game\OmokManager.h" />
+    <ClInclude Include="MonteCarlo\Node.h" />
+    <ClInclude Include="MonteCarlo\Tree.h" />
+    <ClInclude Include="MonteCarlo\Score.h" />
+    <ClInclude Include="Player\AiPlayer.h" />
+    <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Player\UserPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

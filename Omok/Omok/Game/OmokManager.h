@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "UserPlayer.h"
-#include "AiPlayer.h"
+#include "../Player/UserPlayer.h"
+#include "../Player/AiPlayer.h"
 
 // UCT 계산에 쓰이는 상수
 const double ExplorationParameter = sqrt(2);

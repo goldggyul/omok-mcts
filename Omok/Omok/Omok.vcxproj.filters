@@ -18,48 +18,48 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="OmokManager.cpp">
+    <ClCompile Include="Player\AiPlayer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="AiPlayer.cpp">
+    <ClCompile Include="Player\UserPlayer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UserPlayer.cpp">
+    <ClCompile Include="MonteCarlo\Node.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Omok.cpp">
+    <ClCompile Include="MonteCarlo\Tree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MonteCarloTree.cpp">
+    <ClCompile Include="Game\Omok.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MonteCarloNode.cpp">
+    <ClCompile Include="Game\OmokManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OmokManager.h">
+    <ClInclude Include="Player\AiPlayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="Player\Player.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AiPlayer.h">
+    <ClInclude Include="Player\UserPlayer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UserPlayer.h">
+    <ClInclude Include="MonteCarlo\Node.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Omok.h">
+    <ClInclude Include="MonteCarlo\Tree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MonteCarloTree.h">
+    <ClInclude Include="MonteCarlo\Score.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MonteCarloNode.h">
+    <ClInclude Include="Game\Omok.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Score.h">
+    <ClInclude Include="Game\OmokManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
