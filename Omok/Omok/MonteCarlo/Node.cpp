@@ -283,8 +283,3 @@ Move Node::GetMostVotedMove(const std::vector<uint>& votes) const {
 	}
 	return children_[most_frequent_idx]->move_;
 }
-
-void Node::PrintInfo(std::ofstream& fout) const {
-	fout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|" << std::endl;
-	//std::cout << std::setw(16) << parent_->visit_cnt_ << "|" << std::setw(15) << visit_cnt_ << "|" << std::setw(12) << reward_sum_ << "|" << std::endl;
-}

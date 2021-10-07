@@ -50,15 +50,13 @@ public:
 	uint SelectBestChild() const;
 	uint CalculateEvaluation() const;
 	Move GetMostVotedMove(const std::vector<uint>& votes) const;
-
-	void PrintInfo(std::ofstream& fout) const;
-	std::vector<Node*> children_;
+	
 private:
 	Omok omok_;
 	Move move_;
 	uint reward_sum_;
 	uint visit_cnt_;
 	Node* parent_;
-	
+	std::vector<Node*> children_;
 	double exploration_parameter_;
 };

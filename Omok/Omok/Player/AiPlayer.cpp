@@ -13,9 +13,6 @@ Move AiPlayer::GetNextMove(const Omok& omok) {
 }
 
 Move AiPlayer::SearchTree(const Omok& omok) {
-	// for debugging
-	std::ofstream fout("info.txt", std::ios::app);
-
 	// 탐색을 시작하기 위한 기본 트리
 	Tree* first_tree = GetPartialTree(omok, 1, exploration_parameter_);
 
@@ -35,9 +32,6 @@ Move AiPlayer::SearchTree(const Omok& omok) {
 	std::vector<uint> votes;
 	for (auto tree : *trees) {
 		votes.push_back(tree->GetBestChildIndex());
-
-		// for debugging
-		tree->PrintInfo(fout);
 	}
 	// 결과
 	Move next_move = first_tree->GetMostVotedMove(votes);

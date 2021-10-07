@@ -83,25 +83,3 @@ void Tree::MergeTreesValues(std::vector<Tree*>* trees) {
 Move Tree::GetMostVotedMove(const std::vector<uint>& votes) const {
 	return root_->GetMostVotedMove(votes);
 }
-
-void Tree::PrintInfo(std::ofstream& fout) const {
-	fout << "------------------------------------------------------" << std::endl;
-	fout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
-	fout << "------------------------------------------------------" << std::endl;
-	//std::cout << "------------------------------------------------------" << std::endl;
-	//std::cout << "|  no. | 부모 방문 횟수 |  내 방문 횟수 | reward sum |" << std::endl;
-	//std::cout << "------------------------------------------------------" << std::endl;
-
-	uint cnt = 1;
-	std::cout.setf(std::ios::right);
-	for (const auto* child : root_->children_) {
-		fout << "|" << std::setw(6) << cnt;
-		//std::cout << "|" << std::setw(6) << cnt;
-		cnt++;
-		fout << "|";
-		//std::cout << "|";
-		child->PrintInfo(fout);
-	}
-	fout << "------------------------------------------------------" << std::endl;
-	//std::cout << "------------------------------------------------------" << std::endl;
-}

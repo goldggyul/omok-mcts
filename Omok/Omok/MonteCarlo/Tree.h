@@ -28,8 +28,6 @@ public:
 	void MergeTreesValues(std::vector<Tree*>* trees);
 	Move GetMostVotedMove(const std::vector<uint>& votes) const;
 
-	void PrintInfo(std::ofstream& fout) const;
-
 private:
 	Node* root_;
 	Turn ai_turn_;
