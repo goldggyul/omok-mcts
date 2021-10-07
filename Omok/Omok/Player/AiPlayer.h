@@ -3,9 +3,6 @@
 #include "Player.h"
 #include "../MonteCarlo/Tree.h"
 
-// for debugging
-#include <fstream>
-
 class AiPlayer : public Player {
 public:
 	AiPlayer(Turn turn, double exploration_parameter)

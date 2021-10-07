@@ -4,7 +4,7 @@ void Tree::AddNodesUntilMaxDepth(uint max_depth) {
 	root_->RecursiveAddNodesUntilMaxDepth(0, max_depth);
 }
 
-std::vector<Tree*>* Tree::Copy(uint tree_cnt) {
+std::vector<Tree*>* Tree::GetCopies(uint tree_cnt) {
 	std::vector<Tree*>* copy_trees = new std::vector<Tree*>;
 	uint cnt = 0;
 
@@ -66,7 +66,7 @@ void Tree::Mcts() {
 	}
 }
 
-uint Tree::GetBestChildIndex() const {
+uint Tree::GetBestMoveIndex() const {
 	return root_->SelectBestChild();
 }
 

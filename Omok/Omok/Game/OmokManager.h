@@ -25,7 +25,7 @@ public:
 
 	void Play();
 	Turn GetResult() const;
-	Player* GetPlayer(const Turn& turn) {
+	Player* GetPlayer(Turn turn) {
 		switch (turn) {
 		case Turn::Black:
 			return players_[1];

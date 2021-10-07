@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+// Node에서 사용. 각 노드에서의 흑 백 점수 저장
 class Score {
 public:
 	Score() {}

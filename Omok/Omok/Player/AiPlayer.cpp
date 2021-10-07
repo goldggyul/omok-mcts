@@ -23,15 +23,15 @@ Move AiPlayer::SearchTree(const Omok& omok) {
 		tree_cnt++;
 	}
 
-	std::vector<Tree*>* trees = first_tree->Copy(tree_cnt);
+	std::vector<Tree*>* trees = first_tree->GetCopies(tree_cnt);
 	SearchEachTree(trees);
 	first_tree->MergeTreesValues(trees);
 
 	// Voting Algorithm: 각 트리가 각자의 best에 투표하고, 가장 많은 표를 받은 수를 최종 best로 선택
 	// Vote
 	std::vector<uint> votes;
-	for (auto tree : *trees) {
-		votes.push_back(tree->GetBestChildIndex());
+	for (Tree* tree : *trees) {
+		votes.push_back(tree->GetBestMoveIndex());
 	}
 	// 결과
 	Move next_move = first_tree->GetMostVotedMove(votes);
@@ -43,7 +43,7 @@ Move AiPlayer::SearchTree(const Omok& omok) {
 void AiPlayer::SearchEachTree(std::vector<Tree*>* trees) {
 	// Root parallelization: thread 이용하여 병렬로 트리 탐색 진행
 	std::vector<std::thread> workers;
-	for (auto* tree : *trees) {
+	for (Tree* tree : *trees) {
 		workers.push_back(std::thread(&Tree::Mcts, tree));
 	}
 	for (auto& worker : workers) {

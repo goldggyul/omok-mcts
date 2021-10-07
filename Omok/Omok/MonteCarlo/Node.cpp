@@ -7,7 +7,7 @@ void Node::FreeTreeNode() {
 	delete this;
 }
 void Node::RecursiveFreeNode() {
-	for (auto* child : children_) {
+	for (Node* child : children_) {
 		if (child->IsLeafNode()) {
 			delete child;
 		} else {
@@ -19,13 +19,13 @@ void Node::RecursiveFreeNode() {
 
 // 루트 노드에서 호출
 // MCTS 시작 전 부분 트리를 만듦
-Node* Node::MakeCopyOfTree() const {
+Node* Node::GetCopyOfTree() const {
 	Node* copied_root = new Node(omok_, move_, exploration_parameter_, nullptr);
 	CopyChildrenToOtherNode(copied_root);
 	return copied_root;
 }
 void Node::CopyChildrenToOtherNode(Node* parent) const {
-	for (auto* child : children_) {
+	for (Node* child : children_) {
 		Node* copy = new Node(*child);
 		copy->parent_ = parent;
 		parent->children_.push_back(copy);

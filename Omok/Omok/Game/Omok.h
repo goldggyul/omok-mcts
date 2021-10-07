@@ -11,6 +11,7 @@ enum class Turn {
 	White
 };
 
+// 수(Move): 어떤 플레이어(turn)가 어느 좌표에 수를 뒀는지
 struct Move {
 	Move(Turn turn, uint x, uint y) :turn(turn), x(x), y(y) {}
 	Turn turn;

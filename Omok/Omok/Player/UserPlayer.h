@@ -6,4 +6,3 @@ public:
 	UserPlayer(Turn turn) :Player(turn) {}
 	virtual Move GetNextMove(const Omok& omok);
 };
-

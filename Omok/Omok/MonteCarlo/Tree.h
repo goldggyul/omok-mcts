@@ -1,9 +1,8 @@
 ﻿#pragma once
 #include "Node.h"
 
-
 // ms 단위. 트리 탐색 제한 시간
-const uint TimeLimit = 3700;
+const uint TimeLimit = 4500;
 
 class Tree {
 public:
@@ -15,16 +14,16 @@ public:
 	Tree(const Tree& other)
 		:ai_turn_(other.ai_turn_), exploration_parameter_(other.exploration_parameter_) {
 		// 부분 트리 복사
-		root_ = other.root_->MakeCopyOfTree();
+		root_ = other.root_->GetCopyOfTree();
 	}
 	~Tree() {
 		root_->FreeTreeNode();
 	}
 
 	void AddNodesUntilMaxDepth(uint max_depth);
-	std::vector<Tree*>* Copy(uint tree_cnt);
+	std::vector<Tree*>* GetCopies(uint tree_cnt);
 	void Mcts();
-	uint GetBestChildIndex() const;
+	uint GetBestMoveIndex() const;
 	void MergeTreesValues(std::vector<Tree*>* trees);
 	Move GetMostVotedMove(const std::vector<uint>& votes) const;
 

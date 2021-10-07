@@ -7,11 +7,8 @@
 #include "../Game/Omok.h"
 #include "Score.h"
 
-
-#include <fstream>
-
 // 충분히 탐색했는가 판단 기준
-const uint MaxVisit = 15000;
+const uint MaxVisit = 20000;
 const uint MinVisit = 200;
 
 class Node {
@@ -24,7 +21,7 @@ public:
 	void FreeTreeNode();
 	void RecursiveFreeNode();
 
-	Node* MakeCopyOfTree() const;
+	Node* GetCopyOfTree() const;
 	void CopyChildrenToOtherNode(Node* parent) const;
 	void RecursiveAddNodesUntilMaxDepth(uint cur_depth, uint max_depth);
 
