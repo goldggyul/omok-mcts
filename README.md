@@ -7,7 +7,12 @@
 - 우선 여러 Player(게임을 실행한 플레이어, 테스트를 위한 랜덤 플레이어, AI 플레이어)를 활용할 수 있도록 추상 클래스를 활용하여 여러 플레이어 전환이 쉽게 했다.
 - AiPlayer는 Game Tree Search 알고리즘 중 Monte Carlo Tree Search를 이용해서 구현했다.
 - 구현 후에 한 수를 둘 때마다 10~12초가 걸려서 시간을 줄여야 했다.
-- 따라서 논문을 참고하여 다양한 방법들을 이용하여 대략 4초로 시간을 줄였다.
+- 따라서 다양한 방법들을 이용하여 대략 4초로 시간을 줄였다.
+    - 고안한 방법  
+        1. rollout 후 트리 노드 소멸자 thread로 실행
+        2. 부분 트리 rollout 시 thread(C++: future)를 이용하여 실행 후 값을 받아옴
+        3. MCTS에서의 parallelization 방법들에 대해 고안한 [논문](https://link.springer.com/chapter/10.1007/978-3-540-87608-3_6)을 찾을 수 있었음. 그 중에서도 Root, Leaf Parallelization을 적용함
+        4. 방문 횟수가 가장 많은 child와 두번째로 많은 child의 방문수가 일정 방문수 이상 차이나면 충분히 탐색한 것으로 판단하여 탐색 중단
 - 그 후엔 성능 개선을 위해 AiPlayer들끼리 게임을 해보면서 가장 적합한 상수값을 찾아 구현했다. 
 
 ## Monte Carlo Tree Search
