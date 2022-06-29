@@ -13,6 +13,7 @@
         2. 부분 트리 rollout 시 thread(C++: future)를 이용하여 실행 후 값을 받아옴
         3. MCTS에서의 parallelization 방법들에 대해 고안한 [논문](https://link.springer.com/chapter/10.1007/978-3-540-87608-3_6)을 찾을 수 있었음. 그 중에서도 Root, Leaf Parallelization을 적용함
         4. 방문 횟수가 가장 많은 child와 두번째로 많은 child의 방문수가 일정 방문수 이상 차이나면 충분히 탐색한 것으로 판단하여 탐색 중단
+    - 참고 문헌: [Parallel Monte-Carlo Tree Search](https://dke.maastrichtuniversity.nl/m.winands/documents/multithreadedMCTS2.pdf)
 - 그 후엔 성능 개선을 위해 AiPlayer들끼리 게임을 해보면서 가장 적합한 상수값을 찾아 구현했다. 
 
 ## Monte Carlo Tree Search
